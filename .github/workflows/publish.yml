@@ -1,9 +1,11 @@
 name: Publish npm package
 
 on:
-  repository_dispatch:
-    types:
-      - publish-package
+  push:
+    branches:
+      - main
+    paths:
+      - sources.lock.json
   workflow_dispatch:
     inputs:
       source_sha:
@@ -19,7 +21,7 @@ concurrency:
 
 env:
   EXPECTED_PACKAGE_NAME: "@2h2d/tree-sitter-wasms"
-  SOURCE_SHA: ${{ github.event.client_payload.source_sha || inputs.source_sha }}
+  SOURCE_SHA: ${{ inputs.source_sha || github.sha }}
 
 jobs:
   build:

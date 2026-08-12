@@ -14,8 +14,10 @@
 - Keep `sources.lock.json`, `upstream-observations.json`, generated WASMs, copied licences, and
   `manifest.json` internally consistent.
 - Upstream automation may change only the fixed path allowlist in `maintain.yml`.
-- Keep maintenance writes on the short-lived, current-repository GitHub App token; the ordinary
-  `GITHUB_TOKEN` must remain read-only.
+- Keep the repository-wide `GITHUB_TOKEN` default read-only. Grant Actions, Contents, and Pull
+  requests write permissions only to the maintenance PR writer job.
+- Maintenance automation may create or update its pull request and dispatch validation, but it must
+  never merge the pull request.
 - Keep all action references pinned to full commit SHAs and keep `jdx/mise-action` confined to
   read-only jobs.
 - Do not combine repository-write and npm OIDC permissions in one job.

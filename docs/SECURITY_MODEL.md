@@ -37,11 +37,12 @@ Instead, authorization comes from:
 
 1. protected source and workflow changes on `main`;
 2. a fixed-path update patch produced by an unprivileged construction job;
-3. an app-triggered validation run for the exact update commit;
-4. an exact current-run artifact transfer;
-5. a protected `npm-publish` environment;
-6. npm trusted-publisher identity bound to this repository, workflow, and environment;
-7. npm provenance and GitHub artifact attestations.
+3. an explicitly dispatched validation run for the exact update commit;
+4. a human merge of the branch-protected maintenance pull request;
+5. an exact current-run artifact transfer;
+6. a protected `npm-publish` environment;
+7. npm trusted-publisher identity bound to this repository, workflow, and environment;
+8. npm provenance and GitHub artifact attestations.
 
 This preserves the credential separation and exact-artifact controls from the signed local release
 model, but it does not provide the independent local digest assertion.
@@ -56,7 +57,7 @@ workflow. It has no npm provenance. Every subsequent version must use OIDC trust
 | Job                             | Executes upstream/project build code | Repository write | npm OIDC |
 | ------------------------------- | ------------------------------------ | ---------------- | -------- |
 | Daily discovery/build           | Yes                                  | No               | No       |
-| Maintenance pull-request writer | No                                   | App token        | No       |
+| Maintenance pull-request writer | No                                   | `GITHUB_TOKEN`   | No       |
 | Pull-request validation         | Yes                                  | No               | No       |
 | Release construction            | Yes                                  | No               | No       |
 | npm publication                 | No                                   | No               | Yes      |

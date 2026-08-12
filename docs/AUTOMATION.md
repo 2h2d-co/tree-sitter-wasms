@@ -9,8 +9,6 @@
   package bytes.
 - **Package update:** A pull request that selects an eligible release, rebuilds artifacts, and bumps
   the package patch version.
-- **Repository dispatch:** A named GitHub event sent through the repository API to start a workflow
-  without granting the sender general Actions-management permission.
 
 ## Daily discovery
 
@@ -55,27 +53,28 @@ No repository-write, npm OIDC, environment, or publication permission exists in 
 
 ## Pull-request write boundary
 
-The `Open, validate, and merge update` job has a read-only `GITHUB_TOKEN` and no npm identity. It
-does not install dependencies, build source, execute project scripts, or process upstream parser
-code. After applying and validating the fixed-scope patch, it exchanges the
-`MAINTENANCE_APP_PRIVATE_KEY` environment secret for a short-lived GitHub App token scoped to this
-repository and only Contents and Pull requests write permissions.
+The `Open and validate update` job has no npm identity. It does not install dependencies, build
+source, execute project scripts, or process upstream parser code. Its `GITHUB_TOKEN` is granted
+Actions, Contents, and Pull requests write permissions only for that job. The repository-wide
+default remains read-only.
 
 It downloads the exact current-run patch artifact, verifies its checksum, applies it, and repeats
 the fixed-path allowlist check. It then:
 
-1. creates a unique automation branch;
-2. opens a pull request;
-3. lets the app-created pull request trigger `.github/workflows/ci.yml`;
-4. waits for that exact commit's `Validate` run using the read-only `GITHUB_TOKEN`;
-5. squash-merges the green pull request; and
-6. sends a `publish-package` repository dispatch containing the resulting `main` commit when the
-   source lock changed.
+1. creates or replaces the fixed `automation/upstream-grammars` branch;
+2. creates a pull request, or updates the existing open maintenance pull request;
+3. explicitly dispatches `.github/workflows/ci.yml` for the exact branch commit;
+4. waits for that exact commit's `Validate` run; and
+5. stops without merging.
 
-The dedicated app is necessary because organization policy keeps the ordinary `GITHUB_TOKEN`
-read-only and prevents it from creating pull requests. GitHub App events also trigger workflows,
-unlike events created by `GITHUB_TOKEN`. The app has no npm identity, Actions-management
-permission, organization permission, or access to another repository.
+Explicit dispatch is required because pushes and pull requests created with `GITHUB_TOKEN` do not
+trigger another workflow automatically. Organization policy allows GitHub Actions to create pull
+requests, but the maintenance workflow intentionally contains no merge operation.
+
+A maintainer reviews and merges the validated pull request. If the merge changes
+`sources.lock.json`, the authenticated human merge produces a `main` push that starts
+`.github/workflows/publish.yml`. Observation-only merges change only
+`upstream-observations.json` and do not publish.
 
 ## Publication
 

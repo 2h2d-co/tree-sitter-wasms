@@ -129,15 +129,15 @@ jobs:
           retention-days: 7
 
   update:
-    name: Open, validate, and merge update
+    name: Open and validate update
     needs: discover
     if: needs.discover.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: maintenance-bot
     permissions:
-      actions: read # Required only to observe the pull request validation run.
-      contents: read
+      actions: write # Required to dispatch and observe pull request validation.
+      contents: write # Required to push the fixed-scope maintenance branch.
+      pull-requests: write # Required to create the maintenance pull request.
     steps:
       - name: Check out exact maintenance base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -184,28 +184,28 @@ jobs:
           done < <(git diff --name-only)
           git diff --check
 
-      - name: Create narrow maintenance app token
-        id: app-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
-        with:
-          app-id: ${{ vars.MAINTENANCE_APP_ID }}
-          private-key: ${{ secrets.MAINTENANCE_APP_PRIVATE_KEY }}
-          permission-contents: write
-          permission-pull-requests: write
-
-      - name: Create, validate, and merge maintenance pull request
+      - name: Create or update maintenance pull request
         shell: bash
         env:
-          ACTIONS_TOKEN: ${{ github.token }}
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           PACKAGE_CHANGED: ${{ needs.discover.outputs.package-changed }}
         run: |
           set -euo pipefail
-          branch="automation/upstream-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          branch="automation/upstream-grammars"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add --all
+          rm -rf update
+          test -z "$(git ls-files --others --exclude-standard)"
+          git add -- \
+            CHANGELOG.md \
+            LICENSES \
+            manifest.json \
+            package-lock.json \
+            package.json \
+            sources.lock.json \
+            upstream-observations.json \
+            wasm
           if [[ $PACKAGE_CHANGED == true ]]; then
             subject="chore(deps): update tree-sitter grammars"
             body="Selects cooled-down upstream releases, rebuilds every WASM, and bumps the package."
@@ -215,20 +215,41 @@ jobs:
           fi
           git commit -m "$subject"
           gh auth setup-git
-          git push --set-upstream origin "$branch"
-          pr_url=$(gh pr create \
+          remote_sha=$(git ls-remote --heads origin "refs/heads/$branch" | awk '{print $1}')
+          if [[ -n $remote_sha ]]; then
+            git push \
+              --force-with-lease="$branch:$remote_sha" \
+              origin \
+              "HEAD:refs/heads/$branch"
+          else
+            git push --set-upstream origin "$branch"
+          fi
+
+          pr_url=$(gh pr list \
             --base main \
             --head "$branch" \
-            --title "$subject" \
-            --body "$body")
+            --state open \
+            --json url \
+            --jq '.[0].url // ""')
+          if [[ -z $pr_url ]]; then
+            pr_url=$(gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "$subject" \
+              --body "$body")
+          else
+            gh pr edit "$pr_url" --title "$subject" --body "$body"
+          fi
+
           head_sha=$(git rev-parse HEAD)
+          gh workflow run ci.yml --ref "$branch"
 
           run_id=""
           for _ in {1..60}; do
-            run_id=$(GH_TOKEN="$ACTIONS_TOKEN" gh run list \
+            run_id=$(gh run list \
               --workflow ci.yml \
               --branch "$branch" \
-              --event pull_request \
+              --event workflow_dispatch \
               --limit 20 \
               --json databaseId,headSha \
               --jq "[.[] | select(.headSha == \"$head_sha\")][0].databaseId // \"\"")
@@ -236,21 +257,16 @@ jobs:
             sleep 2
           done
           if [[ -z $run_id ]]; then
-            echo "could not find pull request validation run for $head_sha" >&2
+            echo "could not find explicitly dispatched validation run for $head_sha" >&2
             exit 1
           fi
-          GH_TOKEN="$ACTIONS_TOKEN" gh run watch "$run_id" --exit-status
-          gh pr merge "$pr_url" --squash --delete-branch
-          merged_sha=$(gh pr view "$pr_url" --json mergeCommit --jq .mergeCommit.oid)
-          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
-          if [[ -z $merged_sha || $merged_sha != "$main_sha" ]]; then
-            echo "merged commit $merged_sha is not current main $main_sha" >&2
-            exit 1
-          fi
-          if [[ $PACKAGE_CHANGED == true ]]; then
-            gh api \
-              --method POST \
-              "repos/$GITHUB_REPOSITORY/dispatches" \
-              -f event_type=publish-package \
-              -F "client_payload[source_sha]=$merged_sha"
-          fi
+          gh run watch "$run_id" --exit-status
+          {
+            echo "## Maintenance pull request ready"
+            echo
+            echo "- Pull request: $pr_url"
+            echo "- Validated commit: \`$head_sha\`"
+            echo "- Package update: \`$PACKAGE_CHANGED\`"
+            echo
+            echo "The workflow does not merge maintenance pull requests."
+          } >> "$GITHUB_STEP_SUMMARY"
