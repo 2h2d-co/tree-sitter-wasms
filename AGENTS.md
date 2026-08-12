@@ -26,4 +26,5 @@
   tokens without an explicit security-model decision.
 - The initial npm publication is the sole manual bootstrap exception because trusted publishing
   requires an existing package. It must publish the exact locally validated and consumer-tested
-  archive; all subsequent versions use the automated OIDC workflow.
+  archive; the case-specific `--allow-file=all` flag is permitted only for that publish command.
+  All subsequent versions use the automated OIDC workflow.

@@ -122,7 +122,9 @@ therefore a one-time manual bootstrap:
    `npm run pack:ci -- <temporary-directory>`.
 2. Run `npm run test:package -- <archive>` against that exact archive.
 3. Inspect its SHA-256 and publish the exact file manually with
-   `npm publish <archive> --access public --ignore-scripts`.
+   `npm publish <archive> --access public --ignore-scripts --allow-file=all`. The
+   `allow-file=all` flag is authorized only for this one exact bootstrap archive; ordinary project
+   and consumer-test installs retain `allow-file=root`.
 4. Configure npm trusted publishing for `@2h2d/tree-sitter-wasms` using GitHub repository
    `2h2d-co/tree-sitter-wasms`, workflow `publish.yml`, environment `npm-publish`, and the
    `npm publish` action.

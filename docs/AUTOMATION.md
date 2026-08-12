@@ -83,11 +83,12 @@ Publication accepts one exact `source_sha` on `main`.
 
 The initial npm version is a documented bootstrap exception because npm cannot configure a trusted
 publisher for a package that does not yet exist. A maintainer locally validates, packs, consumer
-tests, and manually publishes that exact archive. After trusted publishing is configured, the
-publication workflow is dispatched for the bootstrap commit: it requires the public npm archive to
-be byte-identical, runs the post-publication consumer test, creates the GitHub artifact attestation,
-and finalizes the GitHub tag and release. npm provenance is unavailable for this first manual
-version.
+tests, and manually publishes that exact archive. The direct archive argument requires the
+case-specific `--allow-file=all` flag; this does not alter the committed `allow-file=root` policy.
+After trusted publishing is configured, the publication workflow is dispatched for the bootstrap
+commit: it requires the public npm archive to be byte-identical, runs the post-publication consumer
+test, creates the GitHub artifact attestation, and finalizes the GitHub tag and release. npm
+provenance is unavailable for this first manual version.
 
 The read-only build job reconstructs and validates the package, creates one `.tgz`, records its
 SHA-256, installs that archive into an isolated consumer project with lifecycle scripts disabled,
