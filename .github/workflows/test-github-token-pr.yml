@@ -1,0 +1,45 @@
+name: Test GITHUB_TOKEN pull request
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: github-token-pr-test
+  cancel-in-progress: false
+
+jobs:
+  create:
+    name: Create test pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # Required to push the temporary test branch.
+      pull-requests: write # Required to attempt creation of the test pull request.
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Push branch and create pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="automation/github-token-pr-test-$GITHUB_RUN_ID"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          printf '%s\n' "$GITHUB_RUN_ID" > .github-token-pr-test
+          git add .github-token-pr-test
+          git commit -m "test: verify GITHUB_TOKEN pull request creation"
+          git switch -c "$branch"
+          gh auth setup-git
+          git push --set-upstream origin "$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "test: verify GITHUB_TOKEN pull request creation" \
+            --body "Temporary pull request created by the GITHUB_TOKEN permission test."
