@@ -1,0 +1,18 @@
+export const grammarSamples = {
+  bash: 'greeting() {\n  local name="$1"\n  printf "Hello, %s\\n" "$name"\n}\n',
+  c: '#include <stdio.h>\nint main(void) { puts("hello"); return 0; }\n',
+  cpp: '#include <iostream>\nint main() { std::cout << "hello\\n"; }\n',
+  csharp: 'class Program { static void Main() { System.Console.WriteLine("hello"); } }\n',
+  css: ":root { color-scheme: light dark; }\n",
+  go: 'package main\n\nfunc main() { println("hello") }\n',
+  html: "<!doctype html>\n<html><body><main>Hello</main></body></html>\n",
+  java: "class Main { public static void main(String[] args) {} }\n",
+  javascript: "const greeting = (name) => `Hello, ${name}`;\n",
+  json: '{"name":"tree-sitter-wasms","private":false}\n',
+  python: 'def greeting(name: str) -> str:\n    return f"Hello, {name}"\n',
+  ruby: 'def greeting(name)\n  "Hello, #{name}"\nend\n',
+  rust: 'fn main() { println!("hello"); }\n',
+  scala: 'object Main:\n  def main(args: Array[String]): Unit = println("hello")\n',
+  tsx: "const Greeting = ({ name }: { name: string }) => <div>Hello, {name}</div>;\n",
+  typescript: "export function greeting(name: string): string { return `Hello, ${name}`; }\n",
+} as const;

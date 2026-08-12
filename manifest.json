@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "package": {
     "name": "@2h2d/tree-sitter-wasms",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "toolchain": {
     "treeSitter": "tree-sitter 0.26.11",
@@ -10,6 +10,66 @@
     "binaryen": "wasm-opt version 131 (version_131)"
   },
   "grammars": [
+    {
+      "name": "bash",
+      "file": "tree-sitter-bash.wasm",
+      "sha256": "80f035925cb4b3ba1c5126e64189fbd8eab0c62a8c5881a8111658ca4697c8e8",
+      "bytes": 1358594,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-bash",
+        "tag": "v0.25.1",
+        "commit": "a06c2e4415e9bc0346c6b86d401879ffb44058f7",
+        "releasedAt": "2025-12-02T17:00:27Z"
+      }
+    },
+    {
+      "name": "c",
+      "file": "tree-sitter-c.wasm",
+      "sha256": "3a6cd0378c102eb276aec538bae3c7ddf8dc6151c11572490f772bc99444f5d5",
+      "bytes": 625963,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-c",
+        "tag": "v0.24.2",
+        "commit": "b780e47fc780ddc8da13afa35a3f4ed5c157823d",
+        "releasedAt": "2026-04-22T08:04:13Z"
+      }
+    },
+    {
+      "name": "cpp",
+      "file": "tree-sitter-cpp.wasm",
+      "sha256": "b1f6f4646762288dd9ccc23f3e6fbad3aa5f685aab67401946894547cfd3cdc7",
+      "bytes": 3435982,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-cpp",
+        "tag": "v0.23.4",
+        "commit": "f41e1a044c8a84ea9fa8577fdd2eab92ec96de02",
+        "releasedAt": "2024-11-11T06:58:06Z"
+      }
+    },
+    {
+      "name": "csharp",
+      "file": "tree-sitter-c-sharp.wasm",
+      "sha256": "c6189502f4a1500d407bb7a2a8c5dba6a337455fd0006f98f9046ec9b0a3884f",
+      "bytes": 5328842,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-c-sharp",
+        "tag": "v0.23.5",
+        "commit": "cac6d5fb595f5811a076336682d5d595ac1c9e85",
+        "releasedAt": "2026-04-14T16:12:49Z"
+      }
+    },
+    {
+      "name": "css",
+      "file": "tree-sitter-css.wasm",
+      "sha256": "561137c67b12ccabbe9cf30a476ed3aead0baeccde5713f423581d3483f8bb62",
+      "bytes": 128821,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-css",
+        "tag": "v0.25.0",
+        "commit": "dda5cfc5722c429eaba1c910ca32c2c0c5bb1a3f",
+        "releasedAt": "2025-09-28T11:35:28Z"
+      }
+    },
     {
       "name": "go",
       "file": "tree-sitter-go.wasm",
@@ -20,6 +80,18 @@
         "tag": "v0.25.0",
         "commit": "1547678a9da59885853f5f5cc8a99cc203fa2e2c",
         "releasedAt": "2025-08-29T06:18:35Z"
+      }
+    },
+    {
+      "name": "html",
+      "file": "tree-sitter-html.wasm",
+      "sha256": "658c07f3cc30f537dace7556f7d3948d822b4d721318b3d4ed489deeb4667399",
+      "bytes": 18696,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-html",
+        "tag": "v0.23.2",
+        "commit": "5a5ca8551a179998360b4a4ca2c0f366a35acc03",
+        "releasedAt": "2024-11-11T05:56:15Z"
       }
     },
     {
@@ -47,6 +119,18 @@
       }
     },
     {
+      "name": "json",
+      "file": "tree-sitter-json.wasm",
+      "sha256": "14583e1f5849e7d69afbd13e7e85844ccd7406bcb1816587be541b2007a450a2",
+      "bytes": 5928,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-json",
+        "tag": "v0.24.8",
+        "commit": "ee35a6ebefcef0c5c416c0d1ccec7370cfca5a24",
+        "releasedAt": "2024-11-11T06:02:20Z"
+      }
+    },
+    {
       "name": "python",
       "file": "tree-sitter-python.wasm",
       "sha256": "00b62d8f001e0be0f9d3851f0ee5d182643d10cea910a95d99f1149350210a4b",
@@ -56,6 +140,30 @@
         "tag": "v0.25.0",
         "commit": "293fdc02038ee2bf0e2e206711b69c90ac0d413f",
         "releasedAt": "2025-09-11T06:46:18Z"
+      }
+    },
+    {
+      "name": "ruby",
+      "file": "tree-sitter-ruby.wasm",
+      "sha256": "74b8c798b9aff40aad798916add5196b3e502512e4072a1c959a0d3c5934d733",
+      "bytes": 2107117,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-ruby",
+        "tag": "v0.23.1",
+        "commit": "71bd32fb7607035768799732addba884a37a6210",
+        "releasedAt": "2024-11-11T04:49:49Z"
+      }
+    },
+    {
+      "name": "rust",
+      "file": "tree-sitter-rust.wasm",
+      "sha256": "c0c5c4f928a7aee2194aa8716c2fdde8eb53a7938feb9011b381b02116d666b5",
+      "bytes": 1115131,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-rust",
+        "tag": "v0.24.2",
+        "commit": "77a3747266f4d621d0757825e6b11edcbf991ca5",
+        "releasedAt": "2026-03-27T21:06:33Z"
       }
     },
     {

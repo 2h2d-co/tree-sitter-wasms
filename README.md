@@ -20,6 +20,15 @@ Tree-sitter language repositories.
 - Go
 - Java
 - Scala
+- Rust
+- C
+- C++
+- C#
+- Bash
+- Ruby
+- JSON
+- HTML
+- CSS
 
 The package contains no native Node add-ons, consumer dependencies, or lifecycle scripts.
 Consumers download the prebuilt `.wasm` files as ordinary package data; `node-gyp-build` is not
