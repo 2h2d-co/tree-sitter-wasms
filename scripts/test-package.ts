@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile } from "node:fs
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { grammarSamples } from "./lib/grammar-samples.ts";
 import { root } from "./lib/project.ts";
 
 const archiveArgument = process.argv[2];
@@ -79,20 +80,15 @@ import {
 } from "@2h2d/tree-sitter-wasms";
 import manifest from "@2h2d/tree-sitter-wasms/manifest.json" with { type: "json" };
 
-const samples = {
-  go: "package main\n\nfunc main() { println(\"hello\") }\n",
-  java: "class Main { public static void main(String[] args) {} }\n",
-  javascript: "const greeting = (name) => \"Hello, \" + name;\n",
-  python: "def greeting(name: str) -> str:\n    return f\"Hello, {name}\"\n",
-  scala: "object Main:\n  def main(args: Array[String]): Unit = println(\"hello\")\n",
-  tsx: "const Greeting = ({ name }: { name: string }) => <div>Hello, {name}</div>;\n",
-  typescript: "export function greeting(name: string): string { return \"Hello, \" + name; }\n",
-};
+const samples = ${JSON.stringify(grammarSamples)};
 
 assert.equal(grammarFiles.jsx, grammarFiles.javascript);
 assert.equal(Object.hasOwn(grammarFiles, "python"), true);
 assert.equal(manifest.package.name, "@2h2d/tree-sitter-wasms");
-assert.equal(manifest.grammars.length, 7);
+assert.deepEqual(
+  manifest.grammars.map((grammar) => grammar.name),
+  Object.keys(samples).sort(),
+);
 
 await Parser.init();
 for (const grammar of manifest.grammars) {

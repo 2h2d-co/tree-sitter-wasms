@@ -4,10 +4,11 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import test from "node:test";
 import { LANGUAGE_VERSION, Language, MIN_COMPATIBLE_VERSION, Parser } from "web-tree-sitter";
+import { grammarSamples } from "../scripts/lib/grammar-samples.ts";
 import { grammarFiles, wasmURL } from "../src/index.ts";
 
 type GrammarManifest = {
-  name: keyof typeof samples;
+  name: keyof typeof grammarSamples;
   file: string;
   sha256: string;
   bytes: number;
@@ -18,15 +19,6 @@ type Manifest = {
 };
 
 const root = resolve(import.meta.dirname, "..");
-const samples = {
-  go: 'package main\n\nfunc main() { println("hello") }\n',
-  java: "class Main { public static void main(String[] args) {} }\n",
-  javascript: "const greeting = (name) => `Hello, ${name}`;\n",
-  python: 'def greeting(name: str) -> str:\n    return f"Hello, {name}"\n',
-  scala: 'object Main:\n  def main(args: Array[String]): Unit = println("hello")\n',
-  tsx: "const Greeting = ({ name }: { name: string }) => <div>Hello, {name}</div>;\n",
-  typescript: "export function greeting(name: string): string { return `Hello, ${name}`; }\n",
-} as const;
 
 await Parser.init();
 
@@ -40,7 +32,7 @@ await test("manifest digests match loadable grammar WASMs", async (context) => {
   const manifest = JSON.parse(await readFile(resolve(root, "manifest.json"), "utf8")) as Manifest;
   assert.deepEqual(
     manifest.grammars.map((grammar) => grammar.name),
-    Object.keys(samples).sort(),
+    Object.keys(grammarSamples).sort(),
   );
 
   for (const grammar of manifest.grammars) {
@@ -56,7 +48,7 @@ await test("manifest digests match loadable grammar WASMs", async (context) => {
 
       const parser = new Parser();
       parser.setLanguage(language);
-      const tree = parser.parse(samples[grammar.name]);
+      const tree = parser.parse(grammarSamples[grammar.name]);
       assert.ok(tree);
       assert.equal(tree.rootNode.hasError, false, tree.rootNode.toString());
       tree.delete();

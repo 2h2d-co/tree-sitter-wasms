@@ -1,7 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
-  copyFile,
   chmod,
   mkdir,
   mkdtemp,
@@ -73,7 +72,8 @@ export async function buildWasms(destination = root): Promise<void> {
 
       const license = resolve(checkout, "LICENSE");
       await assertRegularFileInside(license, checkout);
-      await copyFile(license, resolve(stagedLicenses, `${source.id}.txt`));
+      const licenseText = await readFile(license, "utf8");
+      await writeFile(resolve(stagedLicenses, `${source.id}.txt`), `${licenseText.trimEnd()}\n`);
 
       for (const grammar of source.grammars) {
         const grammarPath = resolve(checkout, grammar.path);
