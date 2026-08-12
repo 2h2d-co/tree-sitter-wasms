@@ -46,6 +46,11 @@ Instead, authorization comes from:
 This preserves the credential separation and exact-artifact controls from the signed local release
 model, but it does not provide the independent local digest assertion.
 
+The first npm version is a one-time exception: npm requires the package to exist before trusted
+publishing can be configured. That exact archive is validated and consumer-tested locally, manually
+published, then byte-compared, consumer-tested from the public registry, and GitHub-attested by the
+workflow. It has no npm provenance. Every subsequent version must use OIDC trusted publishing.
+
 ## Privilege separation
 
 | Job                             | Executes upstream/project build code | Repository write | npm OIDC |
@@ -69,6 +74,7 @@ The controls do not protect against:
 - a malicious upstream parser that compiles to malicious-but-valid WASM;
 - a compromised pinned compiler or locked dependency;
 - a malicious workflow change accepted onto protected `main`;
+- compromise of the maintainer account or machine during the one-time initial npm publication;
 - compromise of GitHub-hosted runners, GitHub Actions artifact storage, npm, or GitHub OIDC;
 - an administrator bypassing repository or environment policy;
 - a tag that is retargeted and restored entirely between daily observations;

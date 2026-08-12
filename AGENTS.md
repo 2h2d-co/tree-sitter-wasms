@@ -24,3 +24,6 @@
 - Use Conventional Commits. Maintain `CHANGELOG.md` in Keep a Changelog style.
 - Routine package releases are action-driven; do not introduce local release commits or manual npm
   tokens without an explicit security-model decision.
+- The initial npm publication is the sole manual bootstrap exception because trusted publishing
+  requires an existing package. It must publish the exact locally validated and consumer-tested
+  archive; all subsequent versions use the automated OIDC workflow.

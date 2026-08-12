@@ -113,24 +113,35 @@ See [docs/AUTOMATION.md](docs/AUTOMATION.md) and
 [docs/SECURITY_MODEL.md](docs/SECURITY_MODEL.md) for the complete state machine and trust
 boundaries.
 
-## Repository setup
+## Bootstrap and repository setup
 
-Before the first automated publication:
+npm trusted publishing can be configured only after the package exists. The initial version is
+therefore a one-time manual bootstrap:
 
-1. Create the public npm package and configure npm trusted publishing for
-   `2h2d-co/tree-sitter-wasms`, `.github/workflows/publish.yml`, and the `npm-publish`
-   environment.
-2. Create the `npm-publish` environment and restrict it to the `main` branch.
-3. Create a GitHub App with only repository Contents and Pull requests read/write permissions.
+1. From the exact clean `main` commit, run all checks, build the package, and create one `.tgz` with
+   `npm run pack:ci -- <temporary-directory>`.
+2. Run `npm run test:package -- <archive>` against that exact archive.
+3. Inspect its SHA-256 and publish the exact file manually with
+   `npm publish <archive> --access public --ignore-scripts`.
+4. Configure npm trusted publishing for `@2h2d/tree-sitter-wasms` using GitHub repository
+   `2h2d-co/tree-sitter-wasms`, workflow `publish.yml`, environment `npm-publish`, and the
+   `npm publish` action.
+5. Dispatch `Publish npm package` with the exact bootstrap commit. The workflow requires the
+   already-published archive to be byte-identical, attests it, tests it from the public registry,
+   and creates the lightweight tag and GitHub release.
+
+Complete the remaining GitHub setup before enabling routine maintenance:
+
+1. Create the `npm-publish` environment and restrict it to the `main` branch.
+2. Create a GitHub App with only repository Contents and Pull requests read/write permissions.
    Install it only on `2h2d-co/tree-sitter-wasms`.
-4. Create a `maintenance-bot` environment restricted to `main`. Add the app ID as the repository
+3. Create a `maintenance-bot` environment restricted to `main`. Add the app ID as the repository
    variable `MAINTENANCE_APP_ID` and its private key as the environment secret
    `MAINTENANCE_APP_PRIVATE_KEY`.
-5. Keep the repository's ordinary `GITHUB_TOKEN` default read-only.
-6. Protect `main`: require pull requests, linear history, and the `Validate` check; disable force
+4. Keep the repository's ordinary `GITHUB_TOKEN` default read-only.
+5. Protect `main`: require pull requests, linear history, and the `Validate` check; disable force
    pushes and deletion. Do not require a human approval for the narrowly scoped automated update
    pull requests.
-7. Dispatch `Publish npm package` once with the current `main` commit to publish the bootstrap
-   version.
 
-Routine releases are then completely GitHub Actions–driven.
+After the one-time manual npm bootstrap and trusted-publisher configuration, routine releases are
+completely GitHub Actions–driven.
