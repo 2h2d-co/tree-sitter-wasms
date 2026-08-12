@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "package": {
+    "name": "@2h2d/tree-sitter-wasms",
+    "version": "0.1.0"
+  },
+  "toolchain": {
+    "treeSitter": "tree-sitter 0.26.11",
+    "wasiSdk": "33.0+m\nwasi-libc: 161b3195fc25\nllvm: 4434dabb6991\nllvm-version: 22.1.0\nconfig: f992bcc08219",
+    "binaryen": "wasm-opt version 131 (version_131)"
+  },
+  "grammars": [
+    {
+      "name": "go",
+      "file": "tree-sitter-go.wasm",
+      "sha256": "320fc9b60f62d0cf403ce52db5157009b00f6419c8a42d3bcd53a9563ffaac22",
+      "bytes": 217677,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-go",
+        "tag": "v0.25.0",
+        "commit": "1547678a9da59885853f5f5cc8a99cc203fa2e2c",
+        "releasedAt": "2025-08-29T06:18:35Z"
+      }
+    },
+    {
+      "name": "java",
+      "file": "tree-sitter-java.wasm",
+      "sha256": "32d1238317aa0c32b8952ef2c742a1efc7a0f79c3ecf32fac587ab2c831d5554",
+      "bytes": 415146,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-java",
+        "tag": "v0.23.5",
+        "commit": "94703d5a6bed02b98e438d7cad1136c01a60ba2c",
+        "releasedAt": "2024-12-21T18:22:33Z"
+      }
+    },
+    {
+      "name": "javascript",
+      "file": "tree-sitter-javascript.wasm",
+      "sha256": "b71f12df003716916572bdce4e96961a5778859ad0b129094f1092921b427b31",
+      "bytes": 413112,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-javascript",
+        "tag": "v0.25.0",
+        "commit": "44c892e0be055ac465d5eeddae6d3e194424e7de",
+        "releasedAt": "2025-09-01T07:12:00Z"
+      }
+    },
+    {
+      "name": "python",
+      "file": "tree-sitter-python.wasm",
+      "sha256": "00b62d8f001e0be0f9d3851f0ee5d182643d10cea910a95d99f1149350210a4b",
+      "bytes": 458055,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-python",
+        "tag": "v0.25.0",
+        "commit": "293fdc02038ee2bf0e2e206711b69c90ac0d413f",
+        "releasedAt": "2025-09-11T06:46:18Z"
+      }
+    },
+    {
+      "name": "scala",
+      "file": "tree-sitter-scala.wasm",
+      "sha256": "ad452b81cab31e7e0aecf2d8f081cd1ddeaf6fa0bb80e635cf47f878008fca0f",
+      "bytes": 3923837,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-scala",
+        "tag": "v0.26.2",
+        "commit": "b931fcc338390925eb893d70ad070033f5856ccf",
+        "releasedAt": "2026-08-08T03:53:07Z"
+      }
+    },
+    {
+      "name": "tsx",
+      "file": "tree-sitter-tsx.wasm",
+      "sha256": "9e9a617f3ae8d2796156b37035f0f13686b10457c6e14f7449ea8fd76cb3dda2",
+      "bytes": 1447429,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-typescript",
+        "tag": "v0.23.2",
+        "commit": "f975a621f4e7f532fe322e13c4f79495e0a7b2e7",
+        "releasedAt": "2024-11-11T02:34:12Z"
+      }
+    },
+    {
+      "name": "typescript",
+      "file": "tree-sitter-typescript.wasm",
+      "sha256": "20706cdc5c6166e8eae62b2b18f9c3faff4af779359f0e34f6ac6a30f6e2b804",
+      "bytes": 1415313,
+      "source": {
+        "repository": "tree-sitter/tree-sitter-typescript",
+        "tag": "v0.23.2",
+        "commit": "f975a621f4e7f532fe322e13c4f79495e0a7b2e7",
+        "releasedAt": "2024-11-11T02:34:12Z"
+      }
+    }
+  ]
+}

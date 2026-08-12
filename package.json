@@ -1,0 +1,69 @@
+{
+  "name": "@2h2d/tree-sitter-wasms",
+  "version": "0.1.0",
+  "description": "Verified, lifecycle-free Tree-sitter grammar WASMs",
+  "homepage": "https://github.com/2h2d-co/tree-sitter-wasms#readme",
+  "bugs": {
+    "url": "https://github.com/2h2d-co/tree-sitter-wasms/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Kaan Ozdokmeci",
+    "email": "kaan@2h2d.co",
+    "url": "https://www.2h2d.co"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2h2d-co/tree-sitter-wasms.git"
+  },
+  "files": [
+    "dist",
+    "wasm",
+    "LICENSES",
+    "manifest.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./manifest.json": "./manifest.json",
+    "./wasm/*": "./wasm/*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build:wasms": "node scripts/build-wasms.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test --test-concurrency=1 test/*.test.ts",
+    "test:package": "node scripts/test-package.ts",
+    "check": "hk check --all --check",
+    "pack:dry": "npm run build && node scripts/package-policy.ts --dry-run",
+    "pack:ci": "node scripts/package-policy.ts --pack",
+    "verify:generated": "node scripts/verify-generated.ts",
+    "discover:upstreams": "node scripts/discover-upstreams.ts",
+    "prepare:update": "node scripts/prepare-update.ts",
+    "verify:published": "node scripts/verify-published-package.ts",
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "oxfmt": "0.62.0",
+    "oxlint": "1.77.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "typescript": "7.0.2",
+    "web-tree-sitter": "0.26.11"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

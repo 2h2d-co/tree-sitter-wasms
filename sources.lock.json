@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "cooldownHours": 72,
+  "sources": [
+    {
+      "id": "javascript",
+      "repository": "tree-sitter/tree-sitter-javascript",
+      "tag": "v0.25.0",
+      "commit": "44c892e0be055ac465d5eeddae6d3e194424e7de",
+      "releasedAt": "2025-09-01T07:12:00Z",
+      "grammars": [
+        {
+          "name": "javascript",
+          "path": ".",
+          "output": "tree-sitter-javascript.wasm"
+        }
+      ]
+    },
+    {
+      "id": "typescript",
+      "repository": "tree-sitter/tree-sitter-typescript",
+      "tag": "v0.23.2",
+      "commit": "f975a621f4e7f532fe322e13c4f79495e0a7b2e7",
+      "releasedAt": "2024-11-11T02:34:12Z",
+      "grammars": [
+        {
+          "name": "typescript",
+          "path": "typescript",
+          "output": "tree-sitter-typescript.wasm"
+        },
+        {
+          "name": "tsx",
+          "path": "tsx",
+          "output": "tree-sitter-tsx.wasm"
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "repository": "tree-sitter/tree-sitter-python",
+      "tag": "v0.25.0",
+      "commit": "293fdc02038ee2bf0e2e206711b69c90ac0d413f",
+      "releasedAt": "2025-09-11T06:46:18Z",
+      "grammars": [
+        {
+          "name": "python",
+          "path": ".",
+          "output": "tree-sitter-python.wasm"
+        }
+      ]
+    },
+    {
+      "id": "go",
+      "repository": "tree-sitter/tree-sitter-go",
+      "tag": "v0.25.0",
+      "commit": "1547678a9da59885853f5f5cc8a99cc203fa2e2c",
+      "releasedAt": "2025-08-29T06:18:35Z",
+      "grammars": [
+        {
+          "name": "go",
+          "path": ".",
+          "output": "tree-sitter-go.wasm"
+        }
+      ]
+    },
+    {
+      "id": "java",
+      "repository": "tree-sitter/tree-sitter-java",
+      "tag": "v0.23.5",
+      "commit": "94703d5a6bed02b98e438d7cad1136c01a60ba2c",
+      "releasedAt": "2024-12-21T18:22:33Z",
+      "grammars": [
+        {
+          "name": "java",
+          "path": ".",
+          "output": "tree-sitter-java.wasm"
+        }
+      ]
+    },
+    {
+      "id": "scala",
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.2",
+      "commit": "b931fcc338390925eb893d70ad070033f5856ccf",
+      "releasedAt": "2026-08-08T03:53:07Z",
+      "grammars": [
+        {
+          "name": "scala",
+          "path": ".",
+          "output": "tree-sitter-scala.wasm"
+        }
+      ]
+    }
+  ]
+}

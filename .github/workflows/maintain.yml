@@ -1,0 +1,243 @@
+name: Maintain upstream grammars
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: upstream-grammar-maintenance
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    name: Discover and validate update
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      artifact-digest: ${{ steps.upload.outputs.artifact-digest }}
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      changed: ${{ steps.change.outputs.changed }}
+      package-changed: ${{ steps.discover.outputs.sources_changed }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Install locked toolchain
+        uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+        with:
+          version: "2026.8.2"
+          install_args: --locked
+          cache: false
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Discover stable upstream releases
+        id: discover
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run discover:upstreams
+
+      - name: Prepare eligible package update
+        if: steps.discover.outputs.sources_changed == 'true'
+        run: npm run prepare:update
+
+      - name: Detect maintenance change
+        id: change
+        shell: bash
+        env:
+          SOURCES_CHANGED: ${{ steps.discover.outputs.sources_changed }}
+          STATE_CHANGED: ${{ steps.discover.outputs.state_changed }}
+        run: |
+          set -euo pipefail
+          changed=false
+          if [[ $SOURCES_CHANGED == true || $STATE_CHANGED == true ]]; then
+            changed=true
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Check
+        if: steps.change.outputs.changed == 'true'
+        run: npm run check
+
+      - name: Test
+        if: steps.change.outputs.changed == 'true'
+        run: npm test
+
+      - name: Build package
+        if: steps.change.outputs.changed == 'true'
+        run: npm run build
+
+      - name: Verify generated WASMs
+        if: steps.change.outputs.changed == 'true'
+        run: npm run verify:generated
+
+      - name: Preview package
+        if: steps.change.outputs.changed == 'true'
+        run: npm run pack:dry
+
+      - name: Create fixed-scope update patch
+        if: steps.change.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            case "$file" in
+              CHANGELOG.md | \
+              LICENSES/*.txt | \
+              manifest.json | \
+              package-lock.json | \
+              package.json | \
+              sources.lock.json | \
+              upstream-observations.json | \
+              wasm/*.wasm)
+                ;;
+              *)
+                echo "maintenance changed forbidden path: $file" >&2
+                exit 1
+                ;;
+            esac
+          done < <(git diff --name-only)
+          test -z "$(git ls-files --others --exclude-standard)"
+          git diff --check
+          git diff --binary --full-index > "$RUNNER_TEMP/update.patch"
+          test -s "$RUNNER_TEMP/update.patch"
+          (
+            cd "$RUNNER_TEMP"
+            shasum -a 256 update.patch > update.patch.sha256
+            shasum -a 256 -c update.patch.sha256
+          )
+
+      - name: Upload update patch
+        if: steps.change.outputs.changed == 'true'
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: upstream-update-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/update.patch
+            ${{ runner.temp }}/update.patch.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  update:
+    name: Open, validate, and merge update
+    needs: discover
+    if: needs.discover.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: write # Required to dispatch and observe validation and publication workflows.
+      contents: write # Required to push the fixed-scope update branch and merge it.
+      pull-requests: write # Required to create and merge the maintenance pull request.
+    steps:
+      - name: Check out exact maintenance base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Download exact update patch
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.discover.outputs.artifact-id }}
+          path: update
+
+      - name: Verify and apply fixed-scope patch
+        shell: bash
+        env:
+          EXPECTED_ARTIFACT_DIGEST: ${{ needs.discover.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          test -n "$EXPECTED_ARTIFACT_DIGEST"
+          (
+            cd update
+            shasum -a 256 -c update.patch.sha256
+          )
+          git apply --check update/update.patch
+          git apply update/update.patch
+          while IFS= read -r file; do
+            case "$file" in
+              CHANGELOG.md | \
+              LICENSES/*.txt | \
+              manifest.json | \
+              package-lock.json | \
+              package.json | \
+              sources.lock.json | \
+              upstream-observations.json | \
+              wasm/*.wasm)
+                ;;
+              *)
+                echo "transferred patch changed forbidden path: $file" >&2
+                exit 1
+                ;;
+            esac
+          done < <(git diff --name-only)
+          git diff --check
+
+      - name: Create, validate, and merge maintenance pull request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_CHANGED: ${{ needs.discover.outputs.package-changed }}
+        run: |
+          set -euo pipefail
+          branch="automation/upstream-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add --all
+          if [[ $PACKAGE_CHANGED == true ]]; then
+            subject="chore(deps): update tree-sitter grammars"
+            body="Selects cooled-down upstream releases, rebuilds every WASM, and bumps the package."
+          else
+            subject="chore(deps): observe tree-sitter releases"
+            body="Records newly observed or retargeted upstream releases without changing package bytes."
+          fi
+          git commit -m "$subject"
+          gh auth setup-git
+          git push --set-upstream origin "$branch"
+          pr_url=$(gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "$subject" \
+            --body "$body")
+          head_sha=$(git rev-parse HEAD)
+          gh workflow run ci.yml --ref "$branch"
+
+          run_id=""
+          for _ in {1..60}; do
+            run_id=$(gh run list \
+              --workflow ci.yml \
+              --branch "$branch" \
+              --event workflow_dispatch \
+              --limit 20 \
+              --json databaseId,headSha \
+              --jq "[.[] | select(.headSha == \"$head_sha\")][0].databaseId // \"\"")
+            [[ -n $run_id ]] && break
+            sleep 2
+          done
+          if [[ -z $run_id ]]; then
+            echo "could not find explicitly dispatched validation run for $head_sha" >&2
+            exit 1
+          fi
+          gh run watch "$run_id" --exit-status
+          gh pr merge "$pr_url" --squash --delete-branch
+          merged_sha=$(gh pr view "$pr_url" --json mergeCommit --jq .mergeCommit.oid)
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [[ -z $merged_sha || $merged_sha != "$main_sha" ]]; then
+            echo "merged commit $merged_sha is not current main $main_sha" >&2
+            exit 1
+          fi
+          if [[ $PACKAGE_CHANGED == true ]]; then
+            gh workflow run publish.yml --ref main -f "source_sha=$merged_sha"
+          fi
