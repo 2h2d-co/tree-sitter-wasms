@@ -14,6 +14,8 @@
 - Keep `sources.lock.json`, `upstream-observations.json`, generated WASMs, copied licences, and
   `manifest.json` internally consistent.
 - Upstream automation may change only the fixed path allowlist in `maintain.yml`.
+- Keep maintenance writes on the short-lived, current-repository GitHub App token; the ordinary
+  `GITHUB_TOKEN` must remain read-only.
 - Keep all action references pinned to full commit SHAs and keep `jdx/mise-action` confined to
   read-only jobs.
 - Do not combine repository-write and npm OIDC permissions in one job.

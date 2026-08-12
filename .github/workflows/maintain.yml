@@ -134,10 +134,10 @@ jobs:
     if: needs.discover.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: maintenance-bot
     permissions:
-      actions: write # Required to dispatch and observe validation and publication workflows.
-      contents: write # Required to push the fixed-scope update branch and merge it.
-      pull-requests: write # Required to create and merge the maintenance pull request.
+      actions: read # Required only to observe the pull request validation run.
+      contents: read
     steps:
       - name: Check out exact maintenance base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -184,10 +184,20 @@ jobs:
           done < <(git diff --name-only)
           git diff --check
 
+      - name: Create narrow maintenance app token
+        id: app-token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        with:
+          app-id: ${{ vars.MAINTENANCE_APP_ID }}
+          private-key: ${{ secrets.MAINTENANCE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: Create, validate, and merge maintenance pull request
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
+          ACTIONS_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PACKAGE_CHANGED: ${{ needs.discover.outputs.package-changed }}
         run: |
           set -euo pipefail
@@ -212,14 +222,13 @@ jobs:
             --title "$subject" \
             --body "$body")
           head_sha=$(git rev-parse HEAD)
-          gh workflow run ci.yml --ref "$branch"
 
           run_id=""
           for _ in {1..60}; do
-            run_id=$(gh run list \
+            run_id=$(GH_TOKEN="$ACTIONS_TOKEN" gh run list \
               --workflow ci.yml \
               --branch "$branch" \
-              --event workflow_dispatch \
+              --event pull_request \
               --limit 20 \
               --json databaseId,headSha \
               --jq "[.[] | select(.headSha == \"$head_sha\")][0].databaseId // \"\"")
@@ -227,10 +236,10 @@ jobs:
             sleep 2
           done
           if [[ -z $run_id ]]; then
-            echo "could not find explicitly dispatched validation run for $head_sha" >&2
+            echo "could not find pull request validation run for $head_sha" >&2
             exit 1
           fi
-          gh run watch "$run_id" --exit-status
+          GH_TOKEN="$ACTIONS_TOKEN" gh run watch "$run_id" --exit-status
           gh pr merge "$pr_url" --squash --delete-branch
           merged_sha=$(gh pr view "$pr_url" --json mergeCommit --jq .mergeCommit.oid)
           main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
@@ -239,5 +248,9 @@ jobs:
             exit 1
           fi
           if [[ $PACKAGE_CHANGED == true ]]; then
-            gh workflow run publish.yml --ref main -f "source_sha=$merged_sha"
+            gh api \
+              --method POST \
+              "repos/$GITHUB_REPOSITORY/dispatches" \
+              -f event_type=publish-package \
+              -F "client_payload[source_sha]=$merged_sha"
           fi

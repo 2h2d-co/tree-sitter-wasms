@@ -37,7 +37,7 @@ Instead, authorization comes from:
 
 1. protected source and workflow changes on `main`;
 2. a fixed-path update patch produced by an unprivileged construction job;
-3. an explicitly dispatched validation run for the exact update commit;
+3. an app-triggered validation run for the exact update commit;
 4. an exact current-run artifact transfer;
 5. a protected `npm-publish` environment;
 6. npm trusted-publisher identity bound to this repository, workflow, and environment;
@@ -51,7 +51,7 @@ model, but it does not provide the independent local digest assertion.
 | Job                             | Executes upstream/project build code | Repository write | npm OIDC |
 | ------------------------------- | ------------------------------------ | ---------------- | -------- |
 | Daily discovery/build           | Yes                                  | No               | No       |
-| Maintenance pull-request writer | No                                   | Yes              | No       |
+| Maintenance pull-request writer | No                                   | App token        | No       |
 | Pull-request validation         | Yes                                  | No               | No       |
 | Release construction            | Yes                                  | No               | No       |
 | npm publication                 | No                                   | No               | Yes      |
