@@ -23,6 +23,8 @@ The project is designed to:
 - transfer exact validated archives into credentialed jobs;
 - install and exercise the exact archive before publication and the public npm archive afterward;
 - publish through short-lived npm OIDC with provenance;
+- scope npm's required `--allow-file=all` override to publishing the already validated exact
+  archive, never dependency installation;
 - attest the exact npm archive and checksum;
 - reject unexpected package files, consumer dependencies, bundled dependencies, and lifecycle
   scripts.
