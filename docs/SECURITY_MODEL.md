@@ -21,7 +21,7 @@ The project is designed to:
 - lock build tools and downloads with Mise checksums;
 - execute untrusted build inputs without write or publication credentials;
 - transfer exact validated archives into credentialed jobs;
-- install and exercise the exact archive before publication and the public npm archive afterward;
+- install and exercise the exact archive before staging;
 - stage through short-lived npm OIDC with provenance and require human 2FA approval before public
   availability;
 - scope npm's required `--allow-file=all` override to submitting the already validated exact
@@ -45,8 +45,9 @@ Instead, authorization comes from:
 5. an exact current-run artifact transfer;
 6. a protected `npm-publish` environment;
 7. npm trusted-publisher identity bound to this repository, workflow, and environment;
-8. maintainer review and 2FA approval of the staged npm package;
-9. npm provenance and GitHub artifact attestations.
+8. npm provenance and GitHub artifact attestations;
+9. a GitHub release containing the exact staged archive;
+10. maintainer review and 2FA approval of the staged npm package.
 
 This preserves the credential separation and exact-artifact controls from the signed local release
 model, but it does not provide the independent local digest assertion.
@@ -55,7 +56,8 @@ The first npm version is a one-time exception: npm requires the package to exist
 publishing and staged publishing can be configured. That exact archive is validated and
 consumer-tested locally, manually published, then byte-compared, consumer-tested from the public
 registry, and GitHub-attested by the workflow. It has no npm provenance. Every subsequent version
-must use OIDC staged publishing and maintainer 2FA approval.
+must use OIDC staged publishing, GitHub release creation from the staged archive, and maintainer 2FA
+approval.
 
 ## Privilege separation
 
@@ -66,8 +68,7 @@ must use OIDC staged publishing and maintainer 2FA approval.
 | Pull-request validation         | Yes                                  | No               | No       |
 | Release construction            | Yes                                  | No               | No       |
 | npm staging                     | No                                   | No               | Yes      |
-| Public-package integration      | Yes                                  | No               | No       |
-| GitHub release finalization     | No                                   | Yes              | No       |
+| GitHub release creation         | No                                   | Yes              | No       |
 
 Third-party `jdx/mise-action` execution is confined to read-only construction and validation jobs.
 All Actions references use full commit pins, checkout credentials are not persisted, and cross-run

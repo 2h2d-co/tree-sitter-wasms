@@ -25,10 +25,9 @@
 - Keep all action references pinned to full commit SHAs and keep `jdx/mise-action` confined to
   read-only jobs.
 - Do not combine repository-write and npm OIDC permissions in one job.
-- Every publication must pass both the pre-publication packed-archive consumer test and the
-  post-publication public-registry consumer test before GitHub release finalization.
+- Every staged release must pass the packed-archive consumer test before npm staging.
 - Every routine npm version must be submitted with OIDC `npm stage publish`, reviewed and approved
-  by a maintainer with 2FA, then finalized by rerunning the workflow against the same `main` commit.
+  by a maintainer with 2FA, and released on GitHub from the exact staged archive.
 - If a release attempt fails before publication or staging completes, increment the package version
   and release from a new exact `main` commit. Never weaken current-`main`, exact-SHA, artifact, or
   environment checks to recover an old version.

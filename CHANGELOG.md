@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Create the GitHub release from the exact staged archive before npm approval.
+
 ## [0.2.1] - 2026-08-13
 
 ### Added

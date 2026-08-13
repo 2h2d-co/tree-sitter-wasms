@@ -50,7 +50,6 @@
     "verify:generated": "node scripts/verify-generated.ts",
     "discover:upstreams": "node scripts/discover-upstreams.ts",
     "prepare:update": "node scripts/prepare-update.ts",
-    "verify:published": "node scripts/verify-published-package.ts",
     "fmt": "oxfmt",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix"

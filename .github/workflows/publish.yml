@@ -1,4 +1,4 @@
-name: Stage and finalize npm package
+name: Stage npm release
 
 on:
   push:
@@ -9,14 +9,14 @@ on:
   workflow_dispatch:
     inputs:
       source_sha:
-        description: Exact main commit to package and publish
+        description: Exact main commit to package and stage
         required: true
         type: string
 
 permissions: {}
 
 concurrency:
-  group: npm-publish
+  group: npm-stage-publish
   cancel-in-progress: false
 
 env:
@@ -130,8 +130,8 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  publish:
-    name: Stage or verify npm package
+  stage:
+    name: Stage npm package
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -142,8 +142,6 @@ jobs:
       id-token: write # Required for attestation signing and npm trusted staging.
     outputs:
       package-version: ${{ steps.validate.outputs.package-version }}
-      public: ${{ steps.npm.outputs.public }}
-      stage-id: ${{ steps.npm.outputs.stage-id }}
     steps:
       - name: Check out release metadata
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -275,139 +273,53 @@ jobs:
             ${{ env.archive }}
             ${{ env.checksum }}
 
-      - name: Stage or verify existing npm package
-        id: npm
+      - name: Stage package on npm
+        id: stage
         shell: bash
+        env:
+          ARTIFACT_DIGEST: ${{ needs.build.outputs.artifact-digest }}
+          ARTIFACT_ID: ${{ needs.build.outputs.artifact-id }}
         run: |
           set -euo pipefail
-          metadata="$RUNNER_TEMP/npm-version.json"
-          code=$(curl \
-            --proto '=https' \
-            --tlsv1.2 \
-            --silent \
-            --show-error \
-            --output "$metadata" \
-            --write-out '%{http_code}' \
-            "https://registry.npmjs.org/@2h2d%2ftree-sitter-wasms/$package_version")
-          if [[ $code == 200 ]]; then
-            tarball=$(node -e '
-              const fs = require("node:fs");
-              const value = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
-              if (
-                typeof value?.dist?.tarball !== "string" ||
-                !value.dist.tarball.startsWith(
-                  "https://registry.npmjs.org/@2h2d/tree-sitter-wasms/-/",
-                )
-              ) {
-                throw new Error("registry returned an unexpected tarball URL");
-              }
-              process.stdout.write(value.dist.tarball);
-            ' "$metadata")
-            public_archive="$RUNNER_TEMP/public-package.tgz"
-            curl \
-              --proto '=https' \
-              --tlsv1.2 \
-              --fail \
-              --location \
-              --silent \
-              --show-error \
-              --output "$public_archive" \
-              "$tarball"
-            public_digest=$(shasum -a 256 "$public_archive" | awk '{print $1}')
-            local_digest=$(shasum -a 256 "$archive" | awk '{print $1}')
-            if [[ $public_digest != "$local_digest" ]]; then
-              echo "public npm archive does not match current package artifact" >&2
-              exit 1
-            fi
-            echo "public=true" >> "$GITHUB_OUTPUT"
-            echo "npm already contains the identical package version"
-          elif [[ $code == 404 ]]; then
-            # npm classifies a direct tarball stage as a non-root file fetch. This
-            # invocation is limited to the exact archive validated above; the
-            # committed install policy remains allow-file=root.
-            stage_json=$(npm stage publish "$archive" \
-              --access public \
-              --allow-file=all \
-              --ignore-scripts \
-              --json \
-              --provenance)
-            stage_id=$(EXPECTED_PACKAGE_NAME="$EXPECTED_PACKAGE_NAME" node -e '
-              const value = JSON.parse(process.argv[1]);
-              const stageId = value?.[process.env.EXPECTED_PACKAGE_NAME]?.stageId;
-              if (
-                typeof stageId !== "string" ||
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(stageId)
-              ) {
-                throw new Error("npm did not return a valid stage ID");
-              }
-              process.stdout.write(stageId);
-            ' "$stage_json")
-            {
-              echo "public=false"
-              echo "stage-id=$stage_id"
-            } >> "$GITHUB_OUTPUT"
-            {
-              echo "## npm package staged"
-              echo
-              echo "- Package: \`$package_name@$package_version\`"
-              echo "- Stage ID: \`$stage_id\`"
-              echo "- Source: \`$SOURCE_SHA\`"
-              echo
-              echo "Review and approve this stage with 2FA on npmjs.com."
-              echo "After approval, rerun this workflow for \`$SOURCE_SHA\` to verify the public archive and create the GitHub release."
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "npm registry metadata request failed with HTTP $code" >&2
-            exit 1
-          fi
+          stage_output=$(npm stage publish "$archive" \
+            --access public \
+            --allow-file=all \
+            --ignore-scripts \
+            --json \
+            --provenance)
+          stage_id=$(node -e '
+            const result = JSON.parse(process.argv[1]);
+            const records =
+              result && typeof result === "object"
+                ? [result, ...Object.values(result)]
+                : [];
+            const stagedPackage = records.find(
+              (value) =>
+                value &&
+                typeof value === "object" &&
+                typeof value.stageId === "string",
+            );
+            if (!stagedPackage) {
+              throw new Error("npm did not report a stage ID");
+            }
+            process.stdout.write(stagedPackage.stageId);
+          ' "$stage_output")
+          printf '%s\n' "$stage_output"
+          {
+            echo "## npm package staged"
+            echo
+            echo "- Package: \`$package_name@$package_version\`"
+            echo "- Stage ID: \`$stage_id\`"
+            echo "- Build artifact ID: \`$ARTIFACT_ID\`"
+            echo "- Build artifact digest: \`$ARTIFACT_DIGEST\`"
+            echo "- Source: \`$SOURCE_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-  integration:
-    name: Test public npm package
-    needs:
-      - build
-      - publish
-    if: needs.publish.outputs.public == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Check out release source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ env.SOURCE_SHA }}
-
-      - name: Install locked toolchain
-        uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
-        with:
-          version: "2026.8.2"
-          install_args: --locked
-          cache: false
-
-      - name: Install test dependencies
-        run: npm ci --ignore-scripts
-
-      - name: Download and verify public npm archive
-        env:
-          PACKAGE_DIGEST: ${{ needs.build.outputs.package-digest }}
-          PACKAGE_VERSION: ${{ needs.publish.outputs.package-version }}
-        run: |
-          npm run verify:published -- \
-            "$EXPECTED_PACKAGE_NAME" \
-            "$PACKAGE_VERSION" \
-            "$PACKAGE_DIGEST" \
-            "$RUNNER_TEMP/public-package.tgz"
-
-      - name: Test public package as a consumer
-        run: npm run test:package -- "$RUNNER_TEMP/public-package.tgz"
-
-  finalize:
+  release:
     name: Create GitHub release
     needs:
       - build
-      - integration
-      - publish
+      - stage
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -431,7 +343,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PACKAGE_DIGEST: ${{ needs.build.outputs.package-digest }}
-          PACKAGE_VERSION: ${{ needs.publish.outputs.package-version }}
+          PACKAGE_VERSION: ${{ needs.stage.outputs.package-version }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"

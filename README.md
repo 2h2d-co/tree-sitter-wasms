@@ -114,47 +114,22 @@ It does not run upstream `grammar.js`, package installation, or upstream lifecyc
    creates or updates the maintenance pull request, explicitly dispatches `Validate`, and stops.
 9. A maintainer reviews and merges the pull request. A `sources.lock.json` change on `main`
    automatically stages the package on npm; observation-only merges do not start a release.
-10. A maintainer reviews the staged npm package and approves it with 2FA.
-11. The maintainer reruns the release workflow for the same `main` commit. It verifies the now
-    public archive, repeats consumer testing, and creates the GitHub release.
+10. The workflow creates the lightweight tag and GitHub release from the exact staged archive.
+11. A maintainer reviews the staged npm package and approves it with 2FA.
 
 Every staged submission tests the exact packed archive in an isolated consumer project before npm
-receives it. After approval, a separate read-only job downloads the public npm archive, verifies
-byte equality, installs it again, and repeats the complete parser integration test before creating
-the GitHub release.
+receives it. The GitHub release contains that same checksum-bound archive.
 
 See [docs/AUTOMATION.md](docs/AUTOMATION.md) and
 [docs/SECURITY_MODEL.md](docs/SECURITY_MODEL.md) for the complete state machine and trust
 boundaries.
 
-## Bootstrap and repository setup
+## Release policy
 
-npm trusted publishing can be configured only after the package exists. The initial version is
-therefore a one-time manual bootstrap:
+The initial npm version was manually bootstrapped because trusted and staged publishing require an
+existing package. Routine releases now use the stage-only trusted publisher bound to
+`2h2d-co/tree-sitter-wasms`, `publish.yml`, and the `npm-publish` environment.
 
-1. From the exact clean `main` commit, run all checks, build the package, and create one `.tgz` with
-   `npm run pack:ci -- <temporary-directory>`.
-2. Run `npm run test:package -- <archive>` against that exact archive.
-3. Inspect its SHA-256 and publish the exact file manually with
-   `npm publish <archive> --access public --ignore-scripts --allow-file=all`. The
-   `allow-file=all` flag is scoped to publishing this exact bootstrap archive; ordinary project and
-   consumer-test installs retain `allow-file=root`.
-4. Configure npm trusted publishing for `@2h2d/tree-sitter-wasms` using GitHub repository
-   `2h2d-co/tree-sitter-wasms`, workflow `publish.yml`, environment `npm-publish`, and the
-   `npm stage publish` action.
-5. Dispatch `Stage and finalize npm package` with the exact bootstrap commit. The workflow requires
-   the already-published archive to be byte-identical, attests it, tests it from the public
-   registry, and creates the lightweight tag and GitHub release.
-
-Complete the remaining GitHub setup before enabling routine maintenance:
-
-1. Create the `npm-publish` environment and restrict it to the `main` branch.
-2. Keep the repository's ordinary `GITHUB_TOKEN` default read-only while allowing GitHub Actions
-   to create pull requests at organization level.
-3. Protect `main`: require pull requests, linear history, and the `Validate` check; disable force
-   pushes and deletion. Do not require a human approval for the narrowly scoped automated update
-   pull requests.
-
-After the one-time manual npm bootstrap and trusted-publisher configuration, routine construction
-and staging are GitHub Actions–driven. Public availability requires a maintainer's npm review and
-2FA approval.
+The repository keeps its ordinary `GITHUB_TOKEN` read-only. Scheduled upstream maintenance may
+write only its fixed pull-request branch, while npm staging and GitHub release creation remain in
+separate jobs. Public npm availability requires a maintainer's review and 2FA approval.
