@@ -83,7 +83,8 @@ Publication accepts one exact `source_sha` on `main`.
 The initial npm version is a documented bootstrap exception because npm cannot configure a trusted
 publisher for a package that does not yet exist. A maintainer locally validates, packs, consumer
 tests, and manually publishes that exact archive. The direct archive argument requires the
-case-specific `--allow-file=all` flag; this does not alter the committed `allow-file=root` policy.
+case-specific `--allow-file=all` flag; this does not alter the committed `allow-file=root` install
+policy.
 After trusted publishing is configured, the publication workflow is dispatched for the bootstrap
 commit: it requires the public npm archive to be byte-identical, runs the post-publication consumer
 test, creates the GitHub artifact attestation, and finalizes the GitHub tag and release. npm
@@ -101,7 +102,9 @@ through the official artifact action only after this end-to-end test passes. The
   consumer dependencies, absence of bundled dependencies, and absence of install lifecycle
   scripts;
 - attests the exact `.tgz` and checksum;
-- publishes the exact archive with npm trusted publishing and provenance.
+- publishes the exact archive with npm trusted publishing and provenance. npm classifies a direct
+  tarball publish as a non-root file fetch, so this one command passes `--allow-file=all` after all
+  archive checks; dependency installation retains `allow-file=root`.
 
 The final job has GitHub contents-write permission but no OIDC. It creates the lightweight release
 tag and GitHub release only after npm publication succeeds and a separate read-only integration job

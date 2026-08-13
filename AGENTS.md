@@ -5,7 +5,9 @@
   `mise install --locked`.
 - Install npm dependencies with lifecycle scripts disabled.
 - Keep the project-level `allow-file=root` exception limited to isolated packed-archive consumer
-  tests; do not weaken Git, remote URL, or lifecycle-script policy.
+  tests. The credentialed publication job may pass `--allow-file=all` only to publish the exact
+  current-run archive after its identity, contents, and digest are verified; do not use that
+  override for installation or weaken Git, remote URL, or lifecycle-script policy.
 - Run `npm run check`, `npm test`, `npm run build`, and `npm run pack:dry` before committing.
 - Run `npm run verify:generated` after changing source pins, build code, or toolchain versions.
 - Never add `preinstall`, `install`, or `postinstall`, consumer dependencies, bundled dependencies,
@@ -28,5 +30,6 @@
   tokens without an explicit security-model decision.
 - The initial npm publication is the sole manual bootstrap exception because trusted publishing
   requires an existing package. It must publish the exact locally validated and consumer-tested
-  archive; the case-specific `--allow-file=all` flag is permitted only for that publish command.
-  All subsequent versions use the automated OIDC workflow.
+  archive. All subsequent versions use the automated OIDC workflow. Both paths require
+  `--allow-file=all` because npm classifies direct archive publication as a non-root file fetch;
+  this exception is limited to publishing the already validated archive.

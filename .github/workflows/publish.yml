@@ -318,8 +318,12 @@ jobs:
             fi
             echo "npm already contains the identical package version"
           elif [[ $code == 404 ]]; then
+            # npm classifies a direct tarball publish as a non-root file fetch. This
+            # invocation is limited to the exact archive validated above; the
+            # committed install policy remains allow-file=root.
             npm publish "$archive" \
               --access public \
+              --allow-file=all \
               --ignore-scripts \
               --provenance
           else

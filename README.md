@@ -84,7 +84,10 @@ npm run pack:dry
 The project-level `allow-file=root` exception exists only so the release pipeline can install its
 freshly constructed local `.tgz` when it is explicitly declared by an isolated consumer project's
 root manifest. Lifecycle scripts remain disabled, and Git and remote URL dependencies remain
-prohibited by the broader npm policy.
+prohibited by the broader npm policy. The credentialed publication command separately passes
+`--allow-file=all` because npm classifies publishing a direct `.tgz` as a non-root file fetch. That
+override applies only to the exact current-run archive after its identity, contents, and digest
+have been verified; it is never used for dependency installation.
 
 Rebuild or independently reproduce all generated files:
 
@@ -131,8 +134,8 @@ therefore a one-time manual bootstrap:
 2. Run `npm run test:package -- <archive>` against that exact archive.
 3. Inspect its SHA-256 and publish the exact file manually with
    `npm publish <archive> --access public --ignore-scripts --allow-file=all`. The
-   `allow-file=all` flag is authorized only for this one exact bootstrap archive; ordinary project
-   and consumer-test installs retain `allow-file=root`.
+   `allow-file=all` flag is scoped to publishing this exact bootstrap archive; ordinary project and
+   consumer-test installs retain `allow-file=root`.
 4. Configure npm trusted publishing for `@2h2d/tree-sitter-wasms` using GitHub repository
    `2h2d-co/tree-sitter-wasms`, workflow `publish.yml`, environment `npm-publish`, and the
    `npm publish` action.
