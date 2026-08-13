@@ -1,4 +1,4 @@
-name: Publish npm package
+name: Stage and finalize npm package
 
 on:
   push:
@@ -131,7 +131,7 @@ jobs:
           retention-days: 30
 
   publish:
-    name: Publish npm package
+    name: Stage or verify npm package
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -139,9 +139,11 @@ jobs:
     permissions:
       attestations: write # Required to persist the package artifact attestation.
       contents: read
-      id-token: write # Required for attestation signing and npm trusted publishing.
+      id-token: write # Required for attestation signing and npm trusted staging.
     outputs:
       package-version: ${{ steps.validate.outputs.package-version }}
+      public: ${{ steps.npm.outputs.public }}
+      stage-id: ${{ steps.npm.outputs.stage-id }}
     steps:
       - name: Check out release metadata
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -273,7 +275,8 @@ jobs:
             ${{ env.archive }}
             ${{ env.checksum }}
 
-      - name: Publish or verify existing npm package
+      - name: Stage or verify existing npm package
+        id: npm
         shell: bash
         run: |
           set -euo pipefail
@@ -316,16 +319,43 @@ jobs:
               echo "public npm archive does not match current package artifact" >&2
               exit 1
             fi
+            echo "public=true" >> "$GITHUB_OUTPUT"
             echo "npm already contains the identical package version"
           elif [[ $code == 404 ]]; then
-            # npm classifies a direct tarball publish as a non-root file fetch. This
+            # npm classifies a direct tarball stage as a non-root file fetch. This
             # invocation is limited to the exact archive validated above; the
             # committed install policy remains allow-file=root.
-            npm publish "$archive" \
+            stage_json=$(npm stage publish "$archive" \
               --access public \
               --allow-file=all \
               --ignore-scripts \
-              --provenance
+              --json \
+              --provenance)
+            stage_id=$(EXPECTED_PACKAGE_NAME="$EXPECTED_PACKAGE_NAME" node -e '
+              const value = JSON.parse(process.argv[1]);
+              const stageId = value?.[process.env.EXPECTED_PACKAGE_NAME]?.stageId;
+              if (
+                typeof stageId !== "string" ||
+                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(stageId)
+              ) {
+                throw new Error("npm did not return a valid stage ID");
+              }
+              process.stdout.write(stageId);
+            ' "$stage_json")
+            {
+              echo "public=false"
+              echo "stage-id=$stage_id"
+            } >> "$GITHUB_OUTPUT"
+            {
+              echo "## npm package staged"
+              echo
+              echo "- Package: \`$package_name@$package_version\`"
+              echo "- Stage ID: \`$stage_id\`"
+              echo "- Source: \`$SOURCE_SHA\`"
+              echo
+              echo "Review and approve this stage with 2FA on npmjs.com."
+              echo "After approval, rerun this workflow for \`$SOURCE_SHA\` to verify the public archive and create the GitHub release."
+            } >> "$GITHUB_STEP_SUMMARY"
           else
             echo "npm registry metadata request failed with HTTP $code" >&2
             exit 1
@@ -336,6 +366,7 @@ jobs:
     needs:
       - build
       - publish
+    if: needs.publish.outputs.public == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -5,7 +5,7 @@
   `mise install --locked`.
 - Install npm dependencies with lifecycle scripts disabled.
 - Keep the project-level `allow-file=root` exception limited to isolated packed-archive consumer
-  tests. The credentialed publication job may pass `--allow-file=all` only to publish the exact
+  tests. The credentialed staging job may pass `--allow-file=all` only to stage the exact
   current-run archive after its identity, contents, and digest are verified; do not use that
   override for installation or weaken Git, remote URL, or lifecycle-script policy.
 - Run `npm run check`, `npm test`, `npm run build`, and `npm run pack:dry` before committing.
@@ -20,16 +20,23 @@
   requests write permissions only to the maintenance PR writer job.
 - Maintenance automation may create or update its pull request and dispatch validation, but it must
   never merge the pull request.
+- Commit and push maintainer-directed changes directly to `main`; do not create pull requests for
+  them. Scheduled upstream maintenance remains pull-request based.
 - Keep all action references pinned to full commit SHAs and keep `jdx/mise-action` confined to
   read-only jobs.
 - Do not combine repository-write and npm OIDC permissions in one job.
 - Every publication must pass both the pre-publication packed-archive consumer test and the
   post-publication public-registry consumer test before GitHub release finalization.
+- Every routine npm version must be submitted with OIDC `npm stage publish`, reviewed and approved
+  by a maintainer with 2FA, then finalized by rerunning the workflow against the same `main` commit.
+- If a release attempt fails before publication or staging completes, increment the package version
+  and release from a new exact `main` commit. Never weaken current-`main`, exact-SHA, artifact, or
+  environment checks to recover an old version.
 - Use Conventional Commits. Maintain `CHANGELOG.md` in Keep a Changelog style.
 - Routine package releases are action-driven; do not introduce local release commits or manual npm
   tokens without an explicit security-model decision.
 - The initial npm publication is the sole manual bootstrap exception because trusted publishing
   requires an existing package. It must publish the exact locally validated and consumer-tested
-  archive. All subsequent versions use the automated OIDC workflow. Both paths require
-  `--allow-file=all` because npm classifies direct archive publication as a non-root file fetch;
-  this exception is limited to publishing the already validated archive.
+  archive. All subsequent versions use the automated OIDC staged workflow. Both paths require
+  `--allow-file=all` because npm classifies direct archive publication or staging as a non-root file
+  fetch; this exception is limited to submitting the already validated archive.

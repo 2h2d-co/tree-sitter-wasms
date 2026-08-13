@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-08-12
+## [0.2.1] - 2026-08-13
 
 ### Added
 
@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- Allow npm trusted publishing to accept the exact validated release archive.
+- Submit the exact validated release archive through npm trusted staged publishing.
 
 ## [0.1.0] - 2026-08-12
 

@@ -84,8 +84,8 @@ npm run pack:dry
 The project-level `allow-file=root` exception exists only so the release pipeline can install its
 freshly constructed local `.tgz` when it is explicitly declared by an isolated consumer project's
 root manifest. Lifecycle scripts remain disabled, and Git and remote URL dependencies remain
-prohibited by the broader npm policy. The credentialed publication command separately passes
-`--allow-file=all` because npm classifies publishing a direct `.tgz` as a non-root file fetch. That
+prohibited by the broader npm policy. The credentialed staging command separately passes
+`--allow-file=all` because npm classifies staging a direct `.tgz` as a non-root file fetch. That
 override applies only to the exact current-run archive after its identity, contents, and digest
 have been verified; it is never used for dependency installation.
 
@@ -113,10 +113,13 @@ It does not run upstream `grammar.js`, package installation, or upstream lifecyc
 8. A separate job with narrowly scoped `GITHUB_TOKEN` permissions transfers the validated patch,
    creates or updates the maintenance pull request, explicitly dispatches `Validate`, and stops.
 9. A maintainer reviews and merges the pull request. A `sources.lock.json` change on `main`
-   automatically triggers publication; observation-only merges do not publish.
+   automatically stages the package on npm; observation-only merges do not start a release.
+10. A maintainer reviews the staged npm package and approves it with 2FA.
+11. The maintainer reruns the release workflow for the same `main` commit. It verifies the now
+    public archive, repeats consumer testing, and creates the GitHub release.
 
-Every publication tests the exact packed archive in an isolated consumer project before npm
-receives it. After publication, a separate read-only job downloads the public npm archive, verifies
+Every staged submission tests the exact packed archive in an isolated consumer project before npm
+receives it. After approval, a separate read-only job downloads the public npm archive, verifies
 byte equality, installs it again, and repeats the complete parser integration test before creating
 the GitHub release.
 
@@ -138,10 +141,10 @@ therefore a one-time manual bootstrap:
    consumer-test installs retain `allow-file=root`.
 4. Configure npm trusted publishing for `@2h2d/tree-sitter-wasms` using GitHub repository
    `2h2d-co/tree-sitter-wasms`, workflow `publish.yml`, environment `npm-publish`, and the
-   `npm publish` action.
-5. Dispatch `Publish npm package` with the exact bootstrap commit. The workflow requires the
-   already-published archive to be byte-identical, attests it, tests it from the public registry,
-   and creates the lightweight tag and GitHub release.
+   `npm stage publish` action.
+5. Dispatch `Stage and finalize npm package` with the exact bootstrap commit. The workflow requires
+   the already-published archive to be byte-identical, attests it, tests it from the public
+   registry, and creates the lightweight tag and GitHub release.
 
 Complete the remaining GitHub setup before enabling routine maintenance:
 
@@ -152,5 +155,6 @@ Complete the remaining GitHub setup before enabling routine maintenance:
    pushes and deletion. Do not require a human approval for the narrowly scoped automated update
    pull requests.
 
-After the one-time manual npm bootstrap and trusted-publisher configuration, routine releases are
-completely GitHub Actions–driven.
+After the one-time manual npm bootstrap and trusted-publisher configuration, routine construction
+and staging are GitHub Actions–driven. Public availability requires a maintainer's npm review and
+2FA approval.

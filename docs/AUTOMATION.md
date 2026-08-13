@@ -74,7 +74,7 @@ requests, but the maintenance workflow intentionally contains no merge operation
 A maintainer reviews and merges the validated pull request. If the merge changes
 `sources.lock.json`, the authenticated human merge produces a `main` push that starts
 `.github/workflows/publish.yml`. Observation-only merges change only
-`upstream-observations.json` and do not publish.
+`upstream-observations.json` and do not start a release.
 
 ## Publication
 
@@ -93,7 +93,8 @@ provenance is unavailable for this first manual version.
 The read-only build job reconstructs and validates the package, creates one `.tgz`, records its
 SHA-256, installs that archive into an isolated consumer project with lifecycle scripts disabled,
 loads every package export, and parses a language sample with every WASM. It uploads the archive
-through the official artifact action only after this end-to-end test passes. The `npm-publish` job:
+through the official artifact action only after this end-to-end test passes. The `npm-publish`
+environment job:
 
 - downloads only the immutable artifact ID emitted by its required build job;
 - checks out the source commit with persisted credentials disabled;
@@ -102,16 +103,26 @@ through the official artifact action only after this end-to-end test passes. The
   consumer dependencies, absence of bundled dependencies, and absence of install lifecycle
   scripts;
 - attests the exact `.tgz` and checksum;
-- publishes the exact archive with npm trusted publishing and provenance. npm classifies a direct
-  tarball publish as a non-root file fetch, so this one command passes `--allow-file=all` after all
-  archive checks; dependency installation retains `allow-file=root`.
+- submits the exact archive with OIDC `npm stage publish` and provenance. npm classifies a direct
+  tarball stage as a non-root file fetch, so this one command passes `--allow-file=all` after all
+  archive checks; dependency installation retains `allow-file=root`;
+- records the npm stage ID and stops without making the version publicly installable.
 
-The final job has GitHub contents-write permission but no OIDC. It creates the lightweight release
-tag and GitHub release only after npm publication succeeds and a separate read-only integration job
-downloads the public npm archive, verifies byte equality, and repeats the isolated consumer test.
+A maintainer reviews the staged package on npmjs.com and approves it with 2FA. Approval cannot be
+performed with the workflow's OIDC token. The maintainer then reruns the workflow for the same
+`source_sha`. The workflow requires the public npm archive to be byte-identical to the rebuilt
+archive before the read-only integration job repeats the isolated consumer test. The final job has
+GitHub contents-write permission but no OIDC and creates the lightweight release tag and GitHub
+release.
 
-Retries are idempotent: if npm already has the version, the workflow downloads the public archive
-from the npm registry and requires its digest to match the current artifact before finalizing the
-GitHub release.
+Post-approval retries are idempotent: if npm already has the version, the workflow downloads the
+public archive from the npm registry and requires its digest to match the current artifact before
+finalizing the GitHub release. Do not rerun while a version is still staged; npm does not permit
+the stage-only OIDC token to inspect or approve the queue.
 
-Every later version must use the automated OIDC path; the bootstrap exception must not be reused.
+If construction or staging fails, recovery uses a new package version on a new exact `main` commit.
+The workflow must not relax its current-`main`, exact-SHA, environment, or artifact checks to reuse
+the failed version.
+
+Every later version must use the OIDC staged path and human 2FA approval; the bootstrap exception
+must not be reused.
