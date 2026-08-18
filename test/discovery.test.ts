@@ -83,10 +83,12 @@ await test("selects the newest eligible release without waiting for a newer rele
 });
 
 await test("resets the cooldown when a tag is retargeted", () => {
+  const initialObservation = observations.observations[0];
+  assert.ok(initialObservation);
   const existing: Observations = {
     schemaVersion: 1,
     observations: [
-      observations.observations[0]!,
+      initialObservation,
       {
         repository,
         tag: "v1.1.0",

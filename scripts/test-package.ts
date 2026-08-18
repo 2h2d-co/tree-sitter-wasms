@@ -14,10 +14,11 @@ const archive = await realpath(resolve(archiveArgument));
 if (!archive.endsWith(".tgz") || !(await stat(archive)).isFile()) {
   throw new Error(`Expected a package archive: ${archive}`);
 }
-const npmExecPath = process.env["npm_execpath"];
-if (!npmExecPath) {
+const configuredNpmExecPath = process.env["npm_execpath"];
+if (!configuredNpmExecPath) {
   throw new Error("Run test:package through npm so npm_execpath is available");
 }
+const npmExecPath = configuredNpmExecPath;
 
 const temporaryRoot = await mkdtemp(join(tmpdir(), "tree-sitter-wasms-consumer-"));
 try {
@@ -49,7 +50,7 @@ try {
 }
 
 function npm(args: string[], cwd: string): void {
-  run(npmExecPath!, args, cwd);
+  run(npmExecPath, args, cwd);
 }
 
 function run(command: string, args: string[], cwd: string): void {

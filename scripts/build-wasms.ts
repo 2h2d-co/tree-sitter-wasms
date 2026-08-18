@@ -189,7 +189,10 @@ async function replaceGeneratedDirectory(source: string, destination: string): P
       await rename(old, destination);
     } catch (restoreError) {
       if (!isMissing(restoreError)) {
-        throw new AggregateError([error, restoreError], `Could not replace ${destination}`);
+        // oxlint-disable-next-line preserve-caught-error -- AggregateError.errors retains both failures, and cause identifies the restoration failure.
+        throw new AggregateError([error, restoreError], `Could not replace ${destination}`, {
+          cause: restoreError,
+        });
       }
     }
     throw error;
