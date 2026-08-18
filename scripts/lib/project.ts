@@ -36,34 +36,46 @@ export type Observations = {
   observations: Observation[];
 };
 
+export type JsonPrimitive = boolean | null | number | string;
+
+export type JsonValue = JsonObject | JsonPrimitive | JsonValue[];
+
+export type JsonObject = {
+  [key: string]: JsonValue;
+};
+
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 export async function readSourcesLock(
   path = resolve(root, "sources.lock.json"),
 ): Promise<SourcesLock> {
-  const parsed: unknown = JSON.parse(await readFile(path, "utf8"));
-  if (!isRecord(parsed) || parsed["schemaVersion"] !== 1 || !Array.isArray(parsed["sources"])) {
-    throw new Error(`Invalid sources lock: ${path}`);
+  return parseSourcesLock(await readFile(path, "utf8"), path);
+}
+
+export function parseSourcesLock(value: string, label: string): SourcesLock {
+  const parsed = parseJsonObject(value, label);
+  if (parsed["schemaVersion"] !== 1 || !Array.isArray(parsed["sources"])) {
+    throw new Error(`Invalid sources lock: ${label}`);
   }
   if (
-    typeof parsed["cooldownHours"] !== "number" ||
+    !isNumber(parsed["cooldownHours"]) ||
     !Number.isInteger(parsed["cooldownHours"]) ||
     parsed["cooldownHours"] < 1
   ) {
-    throw new Error(`Invalid cooldownHours in ${path}`);
+    throw new Error(`Invalid cooldownHours in ${label}`);
   }
 
   const sources = parsed["sources"].map((value, index) =>
-    parseSource(value, `${path} source ${index}`),
+    parseSource(value, `${label} source ${index}`),
   );
   const sourceIds = sources.map((source) => source.id);
   if (new Set(sourceIds).size !== sourceIds.length) {
-    throw new Error(`Duplicate source ID in ${path}`);
+    throw new Error(`Duplicate source ID in ${label}`);
   }
 
   const outputs = sources.flatMap((source) => source.grammars.map((grammar) => grammar.output));
   if (new Set(outputs).size !== outputs.length) {
-    throw new Error(`Duplicate grammar output in ${path}`);
+    throw new Error(`Duplicate grammar output in ${label}`);
   }
 
   return {
@@ -76,12 +88,8 @@ export async function readSourcesLock(
 export async function readObservations(
   path = resolve(root, "upstream-observations.json"),
 ): Promise<Observations> {
-  const parsed: unknown = JSON.parse(await readFile(path, "utf8"));
-  if (
-    !isRecord(parsed) ||
-    parsed["schemaVersion"] !== 1 ||
-    !Array.isArray(parsed["observations"])
-  ) {
+  const parsed = parseJsonObject(await readFile(path, "utf8"), path);
+  if (parsed["schemaVersion"] !== 1 || !Array.isArray(parsed["observations"])) {
     throw new Error(`Invalid observations file: ${path}`);
   }
 
@@ -105,7 +113,7 @@ export function canonicalJson(value: unknown): string {
 }
 
 function parseSource(value: unknown, label: string): Source {
-  if (!isRecord(value)) {
+  if (!isJsonObject(value)) {
     throw new Error(`Invalid ${label}`);
   }
   const id = requiredString(value, "id", label);
@@ -127,7 +135,7 @@ function parseSource(value: unknown, label: string): Source {
 }
 
 function parseGrammar(value: unknown, label: string): Grammar {
-  if (!isRecord(value)) {
+  if (!isJsonObject(value)) {
     throw new Error(`Invalid ${label}`);
   }
   const name = requiredString(value, "name", label);
@@ -144,7 +152,7 @@ function parseGrammar(value: unknown, label: string): Grammar {
 }
 
 function parseObservation(value: unknown, label: string): Observation {
-  if (!isRecord(value)) {
+  if (!isJsonObject(value)) {
     throw new Error(`Invalid ${label}`);
   }
   return {
@@ -180,14 +188,42 @@ function parseTimestamp(value: string, label: string): string {
   return value;
 }
 
-function requiredString(value: Record<string, unknown>, key: string, label: string): string {
+function requiredString(value: JsonObject, key: string, label: string): string {
   const result = value[key];
-  if (typeof result !== "string" || result.length === 0) {
+  if (!isString(result) || result.length === 0) {
     throw new Error(`Missing ${key} in ${label}`);
   }
   return result;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+export function parseJsonObject(value: string, label: string): JsonObject {
+  const parsed: unknown = JSON.parse(value);
+  if (!isJsonObject(parsed)) {
+    throw new Error(`Expected a JSON object: ${label}`);
+  }
+  return parsed;
+}
+
+export function isBoolean(value: unknown): value is boolean {
+  return typeof value === "boolean";
+}
+
+export function isNumber(value: unknown): value is number {
+  return typeof value === "number";
+}
+
+export function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
+
+export function isJsonValue(value: unknown): value is JsonValue {
+  if (value === null || isBoolean(value) || isNumber(value) || isString(value)) {
+    return true;
+  }
+  if (Array.isArray(value)) return value.every(isJsonValue);
+  return typeof value === "object" && Object.values(value).every(isJsonValue);
+}
+
+export function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && isJsonValue(value) && value !== null && !Array.isArray(value);
 }

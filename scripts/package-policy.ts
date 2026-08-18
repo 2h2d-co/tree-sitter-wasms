@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { root } from "./lib/project.ts";
+import { isJsonObject, isString, parseJsonObject, root, type JsonObject } from "./lib/project.ts";
 
 type PackFile = {
   path: string;
@@ -20,7 +20,10 @@ if ((mode !== "--dry-run" && mode !== "--pack") || (mode === "--pack" && !destin
   throw new Error("Usage: node scripts/package-policy.ts --dry-run | --pack <directory>");
 }
 
-const manifest = parseRecord(await readFile(resolve(root, "package.json"), "utf8"));
+const manifest = parseJsonObject(
+  await readFile(resolve(root, "package.json"), "utf8"),
+  "package.json",
+);
 const expectedFiles = (await readFile(resolve(root, ".github", "npm-package-files"), "utf8"))
   .split(/\r?\n/)
   .filter(Boolean)
@@ -32,7 +35,10 @@ const args = ["pack", "--json", "--ignore-scripts", "--allow-directory=all"];
 if (mode === "--dry-run") {
   args.push("--dry-run");
 } else {
-  const destination = resolve(destinationArgument!);
+  if (!destinationArgument) {
+    throw new Error("Package destination is required");
+  }
+  const destination = resolve(destinationArgument);
   await mkdir(destination, { recursive: true });
   args.push("--pack-destination", destination);
 }
@@ -50,7 +56,10 @@ if (JSON.stringify(actualFiles) !== JSON.stringify(expectedFiles)) {
 if (mode === "--dry-run") {
   console.log(`Validated ${result.name}@${result.version} with ${actualFiles.length} files.`);
 } else {
-  const archive = resolve(destinationArgument!, result.filename);
+  if (!destinationArgument) {
+    throw new Error("Package destination is required");
+  }
+  const archive = resolve(destinationArgument, result.filename);
   const digest = createHash("sha256")
     .update(await readFile(archive))
     .digest("hex");
@@ -70,12 +79,12 @@ function validateExpectedFiles(files: string[]): void {
   }
 }
 
-function validateManifestPolicy(value: Record<string, unknown>): void {
-  if (value["name"] !== "@2h2d/tree-sitter-wasms" || typeof value["version"] !== "string") {
+function validateManifestPolicy(value: JsonObject): void {
+  if (value["name"] !== "@2h2d/tree-sitter-wasms" || !isString(value["version"])) {
     throw new Error("Unexpected package name or version");
   }
-  const scripts = isRecord(value["scripts"]) ? value["scripts"] : {};
-  const forbidden = [
+  const scripts = value["scripts"];
+  const forbiddenNames = [
     "preinstall",
     "install",
     "postinstall",
@@ -86,7 +95,10 @@ function validateManifestPolicy(value: Record<string, unknown>): void {
     "prepublishOnly",
     "publish",
     "postpublish",
-  ].filter((name) => typeof scripts[name] === "string");
+  ];
+  const forbidden = isJsonObject(scripts)
+    ? forbiddenNames.filter((name) => isString(scripts[name]))
+    : [];
   if (forbidden.length > 0) {
     throw new Error(`Install lifecycle scripts are forbidden: ${forbidden.join(", ")}`);
   }
@@ -101,30 +113,10 @@ function validateManifestPolicy(value: Record<string, unknown>): void {
 
 function parsePackResult(output: string): PackResult {
   const parsed: unknown = JSON.parse(output);
-  if (!Array.isArray(parsed) || parsed.length !== 1 || !isRecord(parsed[0])) {
+  if (!Array.isArray(parsed) || parsed.length !== 1 || !isPackResult(parsed[0])) {
     throw new Error("npm pack did not report exactly one package");
   }
-  const value = parsed[0];
-  if (
-    typeof value["filename"] !== "string" ||
-    typeof value["name"] !== "string" ||
-    typeof value["version"] !== "string" ||
-    !Array.isArray(value["files"])
-  ) {
-    throw new Error("npm pack returned invalid metadata");
-  }
-  const files = value["files"].map((file) => {
-    if (!isRecord(file) || typeof file["path"] !== "string") {
-      throw new Error("npm pack returned an invalid file entry");
-    }
-    return { path: file["path"] };
-  });
-  return {
-    filename: value["filename"],
-    files,
-    name: value["name"],
-    version: value["version"],
-  };
+  return parsed[0];
 }
 
 function npmOutput(args: string[]): string {
@@ -146,14 +138,17 @@ function npmOutput(args: string[]): string {
   return result.stdout.trim();
 }
 
-function parseRecord(value: string): Record<string, unknown> {
-  const parsed: unknown = JSON.parse(value);
-  if (!isRecord(parsed)) {
-    throw new Error("Expected a JSON object");
-  }
-  return parsed;
+function isPackFile(value: unknown): value is PackFile {
+  return isJsonObject(value) && isString(value["path"]);
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+function isPackResult(value: unknown): value is PackResult {
+  return (
+    isJsonObject(value) &&
+    isString(value["filename"]) &&
+    isString(value["name"]) &&
+    isString(value["version"]) &&
+    Array.isArray(value["files"]) &&
+    value["files"].every(isPackFile)
+  );
 }

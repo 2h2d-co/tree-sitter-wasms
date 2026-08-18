@@ -2,11 +2,14 @@ import { spawnSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildWasms } from "./build-wasms.ts";
-import { readSourcesLock, root, type SourcesLock } from "./lib/project.ts";
-
-type PackageJson = {
-  version: string;
-};
+import {
+  isString,
+  parseJsonObject,
+  parseSourcesLock,
+  readSourcesLock,
+  root,
+  type SourcesLock,
+} from "./lib/project.ts";
 
 if (process.argv.length !== 2) {
   throw new Error("prepare-update.ts does not accept arguments");
@@ -15,7 +18,10 @@ if (!npmExecPath()) {
   throw new Error("Run prepare:update through npm so npm_execpath is available");
 }
 
-const oldLock = parseSourcesLock(gitOutput(["show", "HEAD:sources.lock.json"]));
+const oldLock = parseSourcesLock(
+  gitOutput(["show", "HEAD:sources.lock.json"]),
+  "HEAD:sources.lock.json",
+);
 const newLock = await readSourcesLock();
 const changes = describeChanges(oldLock, newLock);
 if (changes.length === 0) {
@@ -23,12 +29,17 @@ if (changes.length === 0) {
 }
 
 npm(["version", "patch", "--no-git-tag-version", "--ignore-scripts"]);
-const packageJson = JSON.parse(
+const packageJson = parseJsonObject(
   await readFile(resolve(root, "package.json"), "utf8"),
-) as PackageJson;
+  "package.json",
+);
+const version = packageJson["version"];
+if (!isString(version)) {
+  throw new Error("package.json has an invalid version");
+}
 await buildWasms();
-await updateChangelog(packageJson.version, changes);
-console.log(`Prepared @2h2d/tree-sitter-wasms ${packageJson.version}:`);
+await updateChangelog(version, changes);
+console.log(`Prepared @2h2d/tree-sitter-wasms ${version}:`);
 for (const change of changes) {
   console.log(`- ${change}`);
 }
@@ -66,25 +77,12 @@ async function updateChangelog(version: string, changes: string[]): Promise<void
   await writeFile(path, changelog.replace(marker, `${marker}${section}`));
 }
 
-function parseSourcesLock(value: string): SourcesLock {
-  const parsed: unknown = JSON.parse(value);
-  if (
-    typeof parsed !== "object" ||
-    parsed === null ||
-    !("schemaVersion" in parsed) ||
-    parsed.schemaVersion !== 1 ||
-    !("cooldownHours" in parsed) ||
-    typeof parsed.cooldownHours !== "number" ||
-    !("sources" in parsed) ||
-    !Array.isArray(parsed.sources)
-  ) {
-    throw new Error("Previous sources lock is invalid");
-  }
-  return parsed as SourcesLock;
-}
-
 function npm(args: string[]): void {
-  run(npmExecPath()!, args);
+  const executable = npmExecPath();
+  if (!executable) {
+    throw new Error("Run prepare:update through npm so npm_execpath is available");
+  }
+  run(executable, args);
 }
 
 function npmExecPath(): string | undefined {

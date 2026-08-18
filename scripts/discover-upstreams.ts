@@ -3,6 +3,9 @@ import { resolve } from "node:path";
 import { applyDiscovery, type Release } from "./lib/discovery.ts";
 import {
   canonicalJson,
+  isBoolean,
+  isJsonObject,
+  isString,
   readObservations,
   readSourcesLock,
   root,
@@ -83,9 +86,10 @@ async function listReleases(
 ): Promise<GitHubRelease[]> {
   const releases: GitHubRelease[] = [];
   for (let page = 1; page <= 20; page += 1) {
-    const pageReleases = await githubJson<GitHubRelease[]>(
+    const pageReleases = await githubJson(
       `/repos/${repository}/releases?per_page=100&page=${page}`,
       token,
+      parseGitHubReleases,
     );
     releases.push(...pageReleases);
     if (pageReleases.length < 100) {
@@ -101,14 +105,16 @@ async function resolveTag(
   token: string | undefined,
 ): Promise<string> {
   let object = (
-    await githubJson<GitObject>(
+    await githubJson(
       `/repos/${repository}/git/ref/tags/${encodeURIComponent(tag)}`,
       token,
+      parseGitObject,
     )
   ).object;
   for (let depth = 0; object.type === "tag" && depth < 5; depth += 1) {
-    object = (await githubJson<GitObject>(`/repos/${repository}/git/tags/${object.sha}`, token))
-      .object;
+    object = (
+      await githubJson(`/repos/${repository}/git/tags/${object.sha}`, token, parseGitObject)
+    ).object;
   }
   if (object.type !== "commit" || !/^[0-9a-f]{40}$/.test(object.sha)) {
     throw new Error(`${repository} tag ${tag} did not resolve to a commit`);
@@ -116,20 +122,59 @@ async function resolveTag(
   return object.sha;
 }
 
-async function githubJson<T>(path: string, token: string | undefined): Promise<T> {
-  const headers: Record<string, string> = {
+async function githubJson<T>(
+  path: string,
+  token: string | undefined,
+  parse: (value: unknown) => T,
+): Promise<T> {
+  const headers = new Headers({
     Accept: "application/vnd.github+json",
     "User-Agent": "@2h2d/tree-sitter-wasms",
     "X-GitHub-Api-Version": "2022-11-28",
-  };
+  });
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers.set("Authorization", `Bearer ${token}`);
   }
   const response = await fetch(`https://api.github.com${path}`, { headers });
   if (!response.ok) {
     throw new Error(`GitHub API ${path} failed with ${response.status}`);
   }
-  return (await response.json()) as T;
+  const payload: unknown = await response.json();
+  return parse(payload);
+}
+
+function parseGitHubReleases(value: unknown): GitHubRelease[] {
+  if (!Array.isArray(value) || !value.every(isGitHubRelease)) {
+    throw new Error("GitHub releases response is invalid");
+  }
+  return value;
+}
+
+function isGitHubRelease(value: unknown): value is GitHubRelease {
+  return (
+    isJsonObject(value) &&
+    isString(value["tag_name"]) &&
+    isString(value["published_at"]) &&
+    isBoolean(value["draft"]) &&
+    isBoolean(value["prerelease"])
+  );
+}
+
+function parseGitObject(value: unknown): GitObject {
+  if (
+    !isJsonObject(value) ||
+    !isJsonObject(value["object"]) ||
+    !isString(value["object"]["type"]) ||
+    !isString(value["object"]["sha"])
+  ) {
+    throw new Error("GitHub Git object response is invalid");
+  }
+  return {
+    object: {
+      type: value["object"]["type"],
+      sha: value["object"]["sha"],
+    },
+  };
 }
 
 function normalizeTimestamp(value: string): string {

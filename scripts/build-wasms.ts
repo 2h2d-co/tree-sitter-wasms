@@ -14,11 +14,15 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { canonicalJson, readSourcesLock, root } from "./lib/project.ts";
+import { canonicalJson, isString, parseJsonObject, readSourcesLock, root } from "./lib/project.ts";
 
 type PackageJson = {
   name: string;
   version: string;
+};
+
+type ErrorWithCode = {
+  code: string;
 };
 
 type GrammarManifest = {
@@ -129,18 +133,14 @@ export async function buildWasms(destination = root): Promise<void> {
 }
 
 async function readPackageJson(): Promise<PackageJson> {
-  const parsed: unknown = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
-  if (
-    typeof parsed !== "object" ||
-    parsed === null ||
-    !("name" in parsed) ||
-    typeof parsed.name !== "string" ||
-    !("version" in parsed) ||
-    typeof parsed.version !== "string"
-  ) {
+  const parsed = parseJsonObject(
+    await readFile(resolve(root, "package.json"), "utf8"),
+    "package.json",
+  );
+  if (!isString(parsed["name"]) || !isString(parsed["version"])) {
     throw new Error("package.json has an invalid package name or version");
   }
-  return { name: parsed.name, version: parsed.version };
+  return { name: parsed["name"], version: parsed["version"] };
 }
 
 async function toolRoot(executable: string): Promise<string> {
@@ -230,12 +230,13 @@ function output(command: string, args: string[]): string {
   return result.stdout.trim();
 }
 
-function isMissing(error: unknown): boolean {
+function isMissing(error: unknown): error is ErrorWithCode {
   return (
     typeof error === "object" &&
     error !== null &&
     "code" in error &&
-    (error as { code?: unknown }).code === "ENOENT"
+    typeof error.code === "string" &&
+    error.code === "ENOENT"
   );
 }
 

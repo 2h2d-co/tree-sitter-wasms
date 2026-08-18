@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import { LANGUAGE_VERSION, Language, MIN_COMPATIBLE_VERSION, Parser } from "web-tree-sitter";
 import { grammarSamples } from "../scripts/lib/grammar-samples.ts";
+import { isJsonObject, isNumber, isString } from "../scripts/lib/project.ts";
 import { grammarFiles, wasmURL } from "../src/index.ts";
 
 type GrammarManifest = {
@@ -20,6 +21,32 @@ type Manifest = {
 
 const root = resolve(import.meta.dirname, "..");
 
+function parseManifest(value: string): Manifest {
+  const parsed: unknown = JSON.parse(value);
+  if (
+    !isJsonObject(parsed) ||
+    !Array.isArray(parsed["grammars"]) ||
+    !parsed["grammars"].every(isGrammarManifest)
+  ) {
+    throw new Error("manifest.json is invalid");
+  }
+  return { grammars: parsed["grammars"] };
+}
+
+function isGrammarManifest(value: unknown): value is GrammarManifest {
+  return (
+    isJsonObject(value) &&
+    isGrammarName(value["name"]) &&
+    isString(value["file"]) &&
+    isString(value["sha256"]) &&
+    isNumber(value["bytes"])
+  );
+}
+
+function isGrammarName(value: unknown): value is keyof typeof grammarSamples {
+  return isString(value) && Object.hasOwn(grammarSamples, value);
+}
+
 await Parser.init();
 
 await test("exports stable URLs, including the JSX alias", () => {
@@ -29,7 +56,7 @@ await test("exports stable URLs, including the JSX alias", () => {
 });
 
 await test("manifest digests match loadable grammar WASMs", async (context) => {
-  const manifest = JSON.parse(await readFile(resolve(root, "manifest.json"), "utf8")) as Manifest;
+  const manifest = parseManifest(await readFile(resolve(root, "manifest.json"), "utf8"));
   assert.deepEqual(
     manifest.grammars.map((grammar) => grammar.name),
     Object.keys(grammarSamples).sort(),
