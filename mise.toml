@@ -24,9 +24,9 @@ strip_components = 1
 bin_path = "bin"
 
 [tools.binaryen]
-version = "131"
+version = "132"
 version_prefix = "version_"
-matching = "binaryen-version_131"
+matching = "binaryen-version_132"
 strip_components = 1
 bin_path = "bin"
 
