@@ -5,7 +5,7 @@
     "version": "0.2.1"
   },
   "toolchain": {
-    "treeSitter": "tree-sitter 0.26.11",
+    "treeSitter": "tree-sitter 0.26.12",
     "wasiSdk": "33.0+m\nwasi-libc: 161b3195fc25\nllvm: 4434dabb6991\nllvm-version: 22.1.0\nconfig: f992bcc08219",
     "binaryen": "wasm-opt version 131 (version_131)"
   },

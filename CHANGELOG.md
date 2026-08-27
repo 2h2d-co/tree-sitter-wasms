@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Record Tree-sitter 0.26.12 as the reproducible WASM build toolchain.
 - Adopt the shared 2h2d Oxlint policy, including the blanket ban on non-const type assertions.
 - Create the GitHub release from the exact staged archive before npm approval.
 
