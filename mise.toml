@@ -32,3 +32,7 @@ bin_path = "bin"
 
 [env]
 _.path = ["{{config_root}}/node_modules/.bin"]
+
+[tasks.check]
+description = "Run all non-writing project checks"
+run = ["npm run check", "npm test", "npm run pack:dry"]

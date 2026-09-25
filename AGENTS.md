@@ -8,7 +8,7 @@
   tests. The credentialed staging job may pass `--allow-file=all` only to stage the exact
   current-run archive after its identity, contents, and digest are verified; do not use that
   override for installation or weaken Git, remote URL, or lifecycle-script policy.
-- Run `npm run check`, `npm test`, `npm run build`, and `npm run pack:dry` before committing.
+- Run `mise run check` before committing. It runs `npm run check`, `npm test`, and `npm run pack:dry`, which builds the package.
 - Run `npm run verify:generated` after changing source pins, build code, or toolchain versions.
 - Never add `preinstall`, `install`, or `postinstall`, consumer dependencies, bundled dependencies,
   native Node add-ons, or consumer-side build steps.
