@@ -48,7 +48,7 @@ export async function buildWasms(destination = root): Promise<void> {
   await mkdir(stagedWasms, { recursive: true });
   await mkdir(stagedLicenses, { recursive: true });
 
-  const wasiSdkRoot = await toolRoot("wasm32-wasi-clang");
+  const wasiSdkRoot = await toolRoot("wasm32-wasip1-clang");
   const binaryenRoot = await toolRoot("wasm-opt");
   const grammarManifest: GrammarManifest[] = [];
 

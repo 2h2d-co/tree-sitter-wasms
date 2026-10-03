@@ -49,28 +49,28 @@ url_api = "https://api.github.com/repos/betterleaks/betterleaks/releases/assets/
 provenance = "cosign"
 
 [[tools.binaryen]]
-version = "132"
+version = "133"
 backend = "github:WebAssembly/binaryen"
-specifiers = ["132"]
+specifiers = ["133"]
 
 [tools.binaryen.options]
-matching = "binaryen-version_132"
+matching = "binaryen-version_133"
 version_prefix = "version_"
 
 [tools.binaryen."platforms.linux-arm64"]
-checksum = "sha256:c58562417836c5d0493d89bdefc434933bdc097db641b483df86bcfa557a107f"
-url = "https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-aarch64-linux.tar.gz"
-url_api = "https://api.github.com/repos/WebAssembly/binaryen/releases/assets/512125148"
+checksum = "sha256:89c07ea56faf38d0fbecf36ca8ec0721756716185f265b568e133d427f299bf8"
+url = "https://github.com/WebAssembly/binaryen/releases/download/version_133/binaryen-version_133-aarch64-linux.tar.gz"
+url_api = "https://api.github.com/repos/WebAssembly/binaryen/releases/assets/580038503"
 
 [tools.binaryen."platforms.linux-x64"]
-checksum = "sha256:195ddc94f9bc89f45abdabb0b9eea86023d727ba90eac8b35b80f2544fc30572"
-url = "https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz"
-url_api = "https://api.github.com/repos/WebAssembly/binaryen/releases/assets/512132895"
+checksum = "sha256:2dc9c7813f5375db93d96ead4b78222fcc3e2677bbb832297af4797782a37489"
+url = "https://github.com/WebAssembly/binaryen/releases/download/version_133/binaryen-version_133-x86_64-linux.tar.gz"
+url_api = "https://api.github.com/repos/WebAssembly/binaryen/releases/assets/580050094"
 
 [tools.binaryen."platforms.macos-arm64"]
-checksum = "sha256:98aad827847af7ef990ed7098d885725c8e5b5aae75073403635617ae4e259aa"
-url = "https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-arm64-macos.tar.gz"
-url_api = "https://api.github.com/repos/WebAssembly/binaryen/releases/assets/512131753"
+checksum = "sha256:ad66da82ac13f163e424b1643f16c6dfcccc98b5966296b43e52d3cab04f84a8"
+url = "https://github.com/WebAssembly/binaryen/releases/download/version_133/binaryen-version_133-arm64-macos.tar.gz"
+url_api = "https://api.github.com/repos/WebAssembly/binaryen/releases/assets/580039733"
 
 [[tools.cocogitto]]
 version = "7.0.0"
@@ -147,50 +147,50 @@ checksum = "sha256:d1a92f40e6c407b84c3a00c3cf978a10b24fd42f153c527e2016cef7bb34a
 url = "https://registry.npmjs.org/npm/-/npm-11.20.0.tgz"
 
 [[tools.tree-sitter]]
-version = "0.26.13"
+version = "0.27.0"
 backend = "aqua:tree-sitter/tree-sitter"
-specifiers = ["0.26.13"]
+specifiers = ["0.27.0"]
 
 [tools.tree-sitter."platforms.linux-arm64"]
-checksum = "sha256:088c5ebf4b4b558c8abfd167c9c4f9669c2f9070da3edd9c0157dc051d77ac5d"
-url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.26.13/tree-sitter-linux-arm64.gz"
-url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/526034724"
+checksum = "sha256:3a35a2dd961ad842384e982c75daf792c01d1a67e442fc3914d4de37bd8a59cb"
+url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-linux-arm64.gz"
+url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/536857304"
 provenance = "github-attestations"
 
 [tools.tree-sitter."platforms.linux-x64"]
-checksum = "sha256:c9c8bef027658d60249ca4fc0663578ceb2e2029346bb8702e091e20d7716475"
-url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.26.13/tree-sitter-linux-x64.gz"
-url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/526034722"
+checksum = "sha256:20a1f39ec1c45f2211492dcb8881c802b643b554bb196869a29ac3778277fa77"
+url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-linux-x64.gz"
+url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/536857303"
 provenance = "github-attestations"
 
 [tools.tree-sitter."platforms.macos-arm64"]
-checksum = "sha256:0a13c53d178d4cca22d2da220d5841c76cba0c39c220b789b64d752ae5d31864"
-url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.26.13/tree-sitter-macos-arm64.gz"
-url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/526034751"
+checksum = "sha256:70f7573b2b2e5371a5b58cc5227d2ad981fd5374596b9874e770af486060774e"
+url = "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.0/tree-sitter-macos-arm64.gz"
+url_api = "https://api.github.com/repos/tree-sitter/tree-sitter/releases/assets/536857317"
 provenance = "github-attestations"
 
 [[tools.wasi-sdk]]
-version = "wasi-sdk-33"
+version = "wasi-sdk-34"
 backend = "github:WebAssembly/wasi-sdk"
-specifiers = ["wasi-sdk-33"]
+specifiers = ["wasi-sdk-34"]
 
 [tools.wasi-sdk.options]
-matching = "wasi-sdk-33.0"
+matching = "wasi-sdk-34.0"
 
 [tools.wasi-sdk."platforms.linux-arm64"]
-checksum = "sha256:4f98ee738c7abb45c81a94d1461fc53cc569d1cd01498951c8184d841a027844"
-url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-arm64-linux.tar.gz"
-url_api = "https://api.github.com/repos/WebAssembly/wasi-sdk/releases/assets/409232825"
+checksum = "sha256:f7e243dff54d60bcc576e94d6166b69f410f2500ae4a9ceef34315be10e77971"
+url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-arm64-linux.tar.gz"
+url_api = "https://api.github.com/repos/WebAssembly/wasi-sdk/releases/assets/528366381"
 
 [tools.wasi-sdk."platforms.linux-x64"]
-checksum = "sha256:0ba8b5bfaeb2adf3f29bab5841d76cf5318ab8e1642ea195f88baba1abd47bce"
-url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.tar.gz"
-url_api = "https://api.github.com/repos/WebAssembly/wasi-sdk/releases/assets/409233036"
+checksum = "sha256:b761e3a0721dbae9c09a0059e5fdb2bf917d1b4a8a7b430fb3b5aafb0984b2c4"
+url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-x86_64-linux.tar.gz"
+url_api = "https://api.github.com/repos/WebAssembly/wasi-sdk/releases/assets/528366474"
 
 [tools.wasi-sdk."platforms.macos-arm64"]
-checksum = "sha256:85c997a2665ead91673b5bb88b7d0df3fc8900df3bfa244f720d478187bbdc78"
-url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-arm64-macos.tar.gz"
-url_api = "https://api.github.com/repos/WebAssembly/wasi-sdk/releases/assets/409232824"
+checksum = "sha256:9c59398106b417f8f14913380fdf0097a8cc0ff4af9eb3ce0065a859e88d49e9"
+url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-arm64-macos.tar.gz"
+url_api = "https://api.github.com/repos/WebAssembly/wasi-sdk/releases/assets/528366387"
 
 [[tools.zizmor]]
 version = "1.30.1"

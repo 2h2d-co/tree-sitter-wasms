@@ -5,16 +5,16 @@
     "version": "0.2.1"
   },
   "toolchain": {
-    "treeSitter": "tree-sitter 0.26.13",
-    "wasiSdk": "33.0+m\nwasi-libc: 161b3195fc25\nllvm: 4434dabb6991\nllvm-version: 22.1.0\nconfig: f992bcc08219",
-    "binaryen": "wasm-opt version 132 (version_132)"
+    "treeSitter": "tree-sitter 0.27.0",
+    "wasiSdk": "34.0\nwasi-libc: 2e6fb9d8ee0c\nllvm: 895aa2c896ad\nllvm-version: 23.1.0\nconfig: f992bcc08219",
+    "binaryen": "wasm-opt version 133 (version_133)"
   },
   "grammars": [
     {
       "name": "bash",
       "file": "tree-sitter-bash.wasm",
-      "sha256": "3d8598cd9d1a16aae3a4a912ad7dbed3391c153e2b8c6583aba0f52fcb4544d0",
-      "bytes": 1358594,
+      "sha256": "f0270796c32f9acfc180e6068d6bef6614b983107b679a247fb63b200c6346e7",
+      "bytes": 1358587,
       "source": {
         "repository": "tree-sitter/tree-sitter-bash",
         "tag": "v0.25.1",
@@ -25,7 +25,7 @@
     {
       "name": "c",
       "file": "tree-sitter-c.wasm",
-      "sha256": "25a5bad2f5d6f7432d058312ff16280aaa1cfaaa3c805d189603ad6534681263",
+      "sha256": "2030a766fa6c6fe18039524008e52fd4a4995bdd9ed07fc4a73ec892450d2f4a",
       "bytes": 625963,
       "source": {
         "repository": "tree-sitter/tree-sitter-c",
@@ -37,7 +37,7 @@
     {
       "name": "cpp",
       "file": "tree-sitter-cpp.wasm",
-      "sha256": "e13237df5472e3101da5919539c30f3cf77ae2405bd112c65560726cd51ddc4c",
+      "sha256": "f5ff3ba7af054af846f37dfd2525bdfede95530d5747a8fe30df87d070ece607",
       "bytes": 3435982,
       "source": {
         "repository": "tree-sitter/tree-sitter-cpp",
@@ -49,7 +49,7 @@
     {
       "name": "csharp",
       "file": "tree-sitter-c-sharp.wasm",
-      "sha256": "dc3a7819d68593db75cec8d97c48b9698017351e816904923cd6a6993c909168",
+      "sha256": "a4b053f6fdedfc9c94876b415441ea953c0046ef83d45e0cbc4d9b8938ae6cbc",
       "bytes": 5328842,
       "source": {
         "repository": "tree-sitter/tree-sitter-c-sharp",
@@ -61,7 +61,7 @@
     {
       "name": "css",
       "file": "tree-sitter-css.wasm",
-      "sha256": "f1868a6db80a2fbb628549df76250cbb7a004713549c66586c09a41857501fbf",
+      "sha256": "f0fa4c3171f3322560e3a56445989f2da9d77c38bae61e9f07ae0b3e01d88b36",
       "bytes": 128821,
       "source": {
         "repository": "tree-sitter/tree-sitter-css",
@@ -73,8 +73,8 @@
     {
       "name": "go",
       "file": "tree-sitter-go.wasm",
-      "sha256": "01dd5931fb375e018309274a74700fb8301883ba6dd82f0b840b80c36286883a",
-      "bytes": 217677,
+      "sha256": "058a4f6c7cb7156c599c2ca07af9645f03b3f655b84bced9c72816e755c7030b",
+      "bytes": 217764,
       "source": {
         "repository": "tree-sitter/tree-sitter-go",
         "tag": "v0.25.0",
@@ -85,8 +85,8 @@
     {
       "name": "html",
       "file": "tree-sitter-html.wasm",
-      "sha256": "14dabdd312d3bdba7d867ef282e4b7d09122179b49d0cc1da3ad2e2004ceb3da",
-      "bytes": 18696,
+      "sha256": "11960fcc4fe3a01930de6bbae9b2c5c4d0a6c16012a5d20cc2069fa5b78d3bbd",
+      "bytes": 18695,
       "source": {
         "repository": "tree-sitter/tree-sitter-html",
         "tag": "v0.23.2",
@@ -97,8 +97,8 @@
     {
       "name": "java",
       "file": "tree-sitter-java.wasm",
-      "sha256": "e2bbf1a5bdfbfcf135d9ec6f00fc7cddcd999cfe9e20da036560cd0f49b2dc78",
-      "bytes": 415146,
+      "sha256": "6476728734128931bd50de2d1e5e9c75c506b51e278f54eaf709836a0de35759",
+      "bytes": 415233,
       "source": {
         "repository": "tree-sitter/tree-sitter-java",
         "tag": "v0.23.5",
@@ -109,8 +109,8 @@
     {
       "name": "javascript",
       "file": "tree-sitter-javascript.wasm",
-      "sha256": "cad471461fbe42299c85fb877cf5b0c043fdebe84e98f6b05e2872a2d1fc2ffb",
-      "bytes": 413112,
+      "sha256": "7ccbce5ba189363aee524c4be7f3a0bdb25b961d4c6d2472a8f3aeb526eecbfe",
+      "bytes": 413064,
       "source": {
         "repository": "tree-sitter/tree-sitter-javascript",
         "tag": "v0.25.0",
@@ -121,8 +121,8 @@
     {
       "name": "json",
       "file": "tree-sitter-json.wasm",
-      "sha256": "8dac07207cf54bb67a259d6511f1cbc3fa92c984296c14348f4b1d502fa2a2ed",
-      "bytes": 5928,
+      "sha256": "564e489724cbcf9b4563cd758a7fb7f355f896b11127819ae9e8ef71e7c15e60",
+      "bytes": 5962,
       "source": {
         "repository": "tree-sitter/tree-sitter-json",
         "tag": "v0.24.8",
@@ -133,8 +133,8 @@
     {
       "name": "python",
       "file": "tree-sitter-python.wasm",
-      "sha256": "35d4bf4907186f244207a8c1176e7d9c5e53035d141d1f52205a7adc7ea708cd",
-      "bytes": 458055,
+      "sha256": "3523e4dc3d12894bbb2f7ea4b86b50eec69aed321c3d9b49271d82ed9f5f79b0",
+      "bytes": 456723,
       "source": {
         "repository": "tree-sitter/tree-sitter-python",
         "tag": "v0.25.0",
@@ -145,8 +145,8 @@
     {
       "name": "ruby",
       "file": "tree-sitter-ruby.wasm",
-      "sha256": "5a94e9d4630221e7802f051d6483dd98b082966dc0a8e9edca7b8b686d9b9c14",
-      "bytes": 2107117,
+      "sha256": "2a06cd2fa165a2913f6598b92c9d3d3132ecfbf3fa7ffa8ca93b31efb2bfb58d",
+      "bytes": 2107111,
       "source": {
         "repository": "tree-sitter/tree-sitter-ruby",
         "tag": "v0.23.1",
@@ -157,8 +157,8 @@
     {
       "name": "rust",
       "file": "tree-sitter-rust.wasm",
-      "sha256": "f3700b38747e6be9f897736583995442e95a2959dcb73a1a328dc83c85da57c4",
-      "bytes": 1115131,
+      "sha256": "158bd555055271ba754f52574fc12c8d5c6aa7316fefeddd3fa563297f50d5c8",
+      "bytes": 1115157,
       "source": {
         "repository": "tree-sitter/tree-sitter-rust",
         "tag": "v0.24.2",
@@ -169,8 +169,8 @@
     {
       "name": "scala",
       "file": "tree-sitter-scala.wasm",
-      "sha256": "fd96e9204982f21f6553853680a7e2f681c848fbcd970e9c0a356a9db41dc116",
-      "bytes": 3923837,
+      "sha256": "c2d92c43913a24efa76528c6aff75c97c0964798c4d360c7dc1951b04058fe52",
+      "bytes": 3923834,
       "source": {
         "repository": "tree-sitter/tree-sitter-scala",
         "tag": "v0.26.2",
@@ -181,8 +181,8 @@
     {
       "name": "tsx",
       "file": "tree-sitter-tsx.wasm",
-      "sha256": "dbbcf367baecbabafbface87464f3b2a5350f9698bf019425d91f208200ae9b8",
-      "bytes": 1447429,
+      "sha256": "3c6cb1c86cecc6d8c99b3a7dfc0aba8b838e2adf036bb23f384d6d8be395ae30",
+      "bytes": 1447323,
       "source": {
         "repository": "tree-sitter/tree-sitter-typescript",
         "tag": "v0.23.2",
@@ -193,8 +193,8 @@
     {
       "name": "typescript",
       "file": "tree-sitter-typescript.wasm",
-      "sha256": "cf718f26bfb8cb81f9e844347e61fd367e7f465673d3e36d358becba65c5cfe8",
-      "bytes": 1415313,
+      "sha256": "d24392183c75c103feafb827c9c086de00c30198e27f362cc971fbca6e91a87f",
+      "bytes": 1415400,
       "source": {
         "repository": "tree-sitter/tree-sitter-typescript",
         "tag": "v0.23.2",

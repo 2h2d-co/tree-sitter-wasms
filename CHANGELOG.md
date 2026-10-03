@@ -8,8 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Rebuild all grammar WASMs with Binaryen 132.
-- Record Tree-sitter 0.26.12 as the reproducible WASM build toolchain.
+- Rebuild all grammar WASMs with Tree-sitter 0.27.0, wasi-sdk 34, and Binaryen 133, and record
+  that toolchain in `manifest.json`.
 - Adopt the shared 2h2d Oxlint policy, including the blanket ban on non-const type assertions.
 - Create the GitHub release from the exact staged archive before npm approval.
 
