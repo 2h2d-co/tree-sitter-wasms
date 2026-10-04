@@ -31,9 +31,10 @@ matching = "binaryen-version_133"
 strip_components = 1
 bin_path = "bin"
 
-[env]
-_.path = ["{{config_root}}/node_modules/.bin"]
-
 [tasks.check]
 description = "Run all non-writing project checks"
-run = ["npm run check", "npm test", "npm run pack:dry"]
+run = ["hk check --all --check", "npm test", "npm audit", "npm run pack:dry"]
+
+[tasks.init]
+description = "Install locked dependencies and Git hooks"
+run = ["npm ci --ignore-scripts", "hk install --mise"]

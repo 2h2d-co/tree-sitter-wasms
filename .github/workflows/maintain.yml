@@ -66,7 +66,7 @@ jobs:
 
       - name: Check
         if: steps.change.outputs.changed == 'true'
-        run: npm run check
+        run: hk check --all --check
 
       - name: Test
         if: steps.change.outputs.changed == 'true'

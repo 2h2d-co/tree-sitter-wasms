@@ -74,9 +74,8 @@ The complete toolchain is managed and locked by Mise:
 
 ```sh
 mise install --locked
-npm ci --ignore-scripts
-npm run check
-npm test
+mise run init
+mise run check
 npm run build
 npm run pack:dry
 ```

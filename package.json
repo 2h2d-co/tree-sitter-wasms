@@ -44,7 +44,6 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "node --test --test-concurrency=1 test/*.test.ts",
     "test:package": "node scripts/test-package.ts",
-    "check": "hk check --all --check",
     "pack:dry": "npm run build && node scripts/package-policy.ts --dry-run",
     "pack:ci": "node scripts/package-policy.ts --pack",
     "verify:generated": "node scripts/verify-generated.ts",
