@@ -100,6 +100,13 @@
       "firstObservedAt": "2026-08-12T13:19:39Z"
     },
     {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.3",
+      "commit": "851032fc97297bbe299dabe5bd826f778794d03c",
+      "publishedAt": "2026-10-17T18:59:14Z",
+      "firstObservedAt": "2026-10-31T10:22:51Z"
+    },
+    {
       "repository": "tree-sitter/tree-sitter-typescript",
       "tag": "v0.23.2",
       "commit": "f975a621f4e7f532fe322e13c4f79495e0a7b2e7",
