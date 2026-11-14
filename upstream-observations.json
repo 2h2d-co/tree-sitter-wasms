@@ -100,6 +100,83 @@
       "firstObservedAt": "2026-08-12T13:19:39Z"
     },
     {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.3",
+      "commit": "851032fc97297bbe299dabe5bd826f778794d03c",
+      "publishedAt": "2026-10-17T18:59:14Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.4",
+      "commit": "8c0b6d44bfd66bf7bc9a1fc15084ef17cef2f97e",
+      "publishedAt": "2026-11-01T18:02:22Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.5",
+      "commit": "dc823fa0763078b25db7372b38edd9ffcbc07b00",
+      "publishedAt": "2026-11-06T15:50:48Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.6",
+      "commit": "56ced299a65e98a365556236967d97c9d8d5c496",
+      "publishedAt": "2026-11-06T17:10:38Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.7",
+      "commit": "a576095e7048425e17a3126d2f08da742c925df2",
+      "publishedAt": "2026-11-06T23:15:58Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.8",
+      "commit": "312feb0595972a24087beb8591025074da743b68",
+      "publishedAt": "2026-11-07T02:34:55Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.9",
+      "commit": "854efe86bd888c11f3eef8c8a3c0a805555b7802",
+      "publishedAt": "2026-11-07T02:41:30Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.10",
+      "commit": "9e930d6f3a3b3626778b53549a661fbaef643d8e",
+      "publishedAt": "2026-11-10T07:23:54Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.11",
+      "commit": "b22db807e45caca5cc2fa55a9067b49f119c3183",
+      "publishedAt": "2026-11-10T16:39:50Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.12",
+      "commit": "c693debf423dff0f58784cce82daec5fe5bc5ad0",
+      "publishedAt": "2026-11-11T15:43:14Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
+      "repository": "tree-sitter/tree-sitter-scala",
+      "tag": "v0.26.13",
+      "commit": "e8728b1c62ea096c753a9a70325f77ebbf2192de",
+      "publishedAt": "2026-11-13T08:09:51Z",
+      "firstObservedAt": "2026-11-14T11:27:22Z"
+    },
+    {
       "repository": "tree-sitter/tree-sitter-typescript",
       "tag": "v0.23.2",
       "commit": "f975a621f4e7f532fe322e13c4f79495e0a7b2e7",
