@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-28
+
+### Changed
+
+- Update scala: v0.26.2 (b931fcc33839) to v0.26.13 (e8728b1c62ea).
+- Update c-sharp: v0.23.5 (cac6d5fb595f) to v0.24.0 (d4bbe18103c3).
+
 ### Changed
 
 - Rebuild all grammar WASMs with Tree-sitter 0.27.2, wasi-sdk 34, and Binaryen 133, and record
