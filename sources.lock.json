@@ -80,9 +80,9 @@
     {
       "id": "scala",
       "repository": "tree-sitter/tree-sitter-scala",
-      "tag": "v0.26.2",
-      "commit": "b931fcc338390925eb893d70ad070033f5856ccf",
-      "releasedAt": "2026-08-08T03:53:07Z",
+      "tag": "v0.26.13",
+      "commit": "e8728b1c62ea096c753a9a70325f77ebbf2192de",
+      "releasedAt": "2026-11-13T08:09:51Z",
       "grammars": [
         {
           "name": "scala",
@@ -136,9 +136,9 @@
     {
       "id": "c-sharp",
       "repository": "tree-sitter/tree-sitter-c-sharp",
-      "tag": "v0.23.5",
-      "commit": "cac6d5fb595f5811a076336682d5d595ac1c9e85",
-      "releasedAt": "2026-04-14T16:12:49Z",
+      "tag": "v0.24.0",
+      "commit": "d4bbe18103c3380c6454085e589d2610938da142",
+      "releasedAt": "2026-11-18T15:25:46Z",
       "grammars": [
         {
           "name": "csharp",

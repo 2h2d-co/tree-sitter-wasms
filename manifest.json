@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "package": {
     "name": "@2h2d/tree-sitter-wasms",
-    "version": "0.2.1"
+    "version": "0.2.2"
   },
   "toolchain": {
     "treeSitter": "tree-sitter 0.27.2",
@@ -49,13 +49,13 @@
     {
       "name": "csharp",
       "file": "tree-sitter-c-sharp.wasm",
-      "sha256": "a4b053f6fdedfc9c94876b415441ea953c0046ef83d45e0cbc4d9b8938ae6cbc",
-      "bytes": 5328842,
+      "sha256": "e137386fcdfc2562a058f8048c76ab77b0663a318cb62d8026cd4d2e94944231",
+      "bytes": 7252213,
       "source": {
         "repository": "tree-sitter/tree-sitter-c-sharp",
-        "tag": "v0.23.5",
-        "commit": "cac6d5fb595f5811a076336682d5d595ac1c9e85",
-        "releasedAt": "2026-04-14T16:12:49Z"
+        "tag": "v0.24.0",
+        "commit": "d4bbe18103c3380c6454085e589d2610938da142",
+        "releasedAt": "2026-11-18T15:25:46Z"
       }
     },
     {
@@ -169,13 +169,13 @@
     {
       "name": "scala",
       "file": "tree-sitter-scala.wasm",
-      "sha256": "c2d92c43913a24efa76528c6aff75c97c0964798c4d360c7dc1951b04058fe52",
-      "bytes": 3923834,
+      "sha256": "a20d47f191c31efc9bbc67481b71b0109dc9e01cda9422ebd7a7d4d0bb055ce2",
+      "bytes": 4550770,
       "source": {
         "repository": "tree-sitter/tree-sitter-scala",
-        "tag": "v0.26.2",
-        "commit": "b931fcc338390925eb893d70ad070033f5856ccf",
-        "releasedAt": "2026-08-08T03:53:07Z"
+        "tag": "v0.26.13",
+        "commit": "e8728b1c62ea096c753a9a70325f77ebbf2192de",
+        "releasedAt": "2026-11-13T08:09:51Z"
       }
     },
     {
